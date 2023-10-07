@@ -21,4 +21,21 @@ async function GetActors({ skip, take }) {
   return result;
 }
 
-export { GetActors };
+/**
+ * @param { {id: number} } params
+ * @returns { Promise<Void> }
+ */
+async function DeleteAnActor({ id }) {
+  
+  const res1 = await MysqlClient.from("film_actor").where({ actor_id: id }).del();
+
+  const res = await MysqlClient.from("actor").where({ actor_id: id }).del();
+  
+  if (res === 1) {
+    return { msg: `Actor with ID ${id} has been deleted successfully.` }; 
+  } else {
+    return { msg: `Actor with ID ${id} not found or already deleted.` };
+  }
+}
+
+export { GetActors, DeleteAnActor };
