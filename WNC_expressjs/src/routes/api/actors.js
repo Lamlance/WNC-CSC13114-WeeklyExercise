@@ -1,5 +1,5 @@
 import express from "express";
-import { GetActors } from "../../db/actors.js";
+import { DeleteAnActor, GetActors } from "../../db/actors.js";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { z } from "zod";
 
@@ -48,6 +48,20 @@ actors_router.get("/:id", async function (req, res) {
   return res.status(200).json({ Hello: id });
 });
 actors_router.put("/:id");
-actors_router.delete("/:id");
+actors_router.delete("/:id", async function (req, res) {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ error: "Missing id!" });
+  }
+
+  const [data, err] = await CallAndCatchAsync(DeleteAnActor, { id });
+
+  if (err) {
+    return res.status(500).json({ msg: "Server error!", error: err });
+  }
+
+  return res.status(200).json(data);
+});
 
 export default actors_router;
