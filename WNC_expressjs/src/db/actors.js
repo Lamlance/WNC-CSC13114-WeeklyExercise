@@ -55,4 +55,23 @@ async function UpdateAnActor({ id, info }) {
   }
 }
 
-export { GetActors, DeleteAnActor, UpdateAnActor };
+/**
+ * @param {Object} actorData
+ * @returns {Promise<number>}
+ */
+async function AddActor(actorData) {
+  try {
+    const [insertedActorId] = await MysqlClient("actor").insert(actorData);
+
+    if (insertedActorId) {
+      return insertedActorId;
+    } else {
+      throw new Error("Failed to add actor");
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error("Server error");
+  }
+}
+
+export { GetActors, DeleteAnActor, UpdateAnActor, AddActor };
