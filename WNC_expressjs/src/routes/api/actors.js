@@ -112,6 +112,28 @@ actors_router.put("/:id", async function (req, res) {
 
   return res.status(200).json(data);
 });
+actors_router.patch("/:id", async function (req, res) {
+  const { id } = req.params;
+  const [info, q_err] = await CallAndCatchAsync(
+    ActorPatchSchema.parseAsync,
+    req.body
+  );
+  if (q_err != null) {
+    return res.status(400).json({ error: "Invalid params" });
+  }
+
+  if (!id) {
+    return res.status(400).json({ error: "Missing id!" });
+  }
+
+  const [data, err] = await CallAndCatchAsync(UpdateAnActor, { id, info });
+
+  if (err) {
+    return res.status(500).json({ msg: "Server error!", error: err });
+  }
+
+  return res.status(200).json(data);
+});
 actors_router.delete("/:id", async function (req, res) {
   const { id } = req.params;
   console.log("id", id);
