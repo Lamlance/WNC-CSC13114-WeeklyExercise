@@ -26,16 +26,33 @@ async function GetActors({ skip, take }) {
  * @returns { Promise<Void> }
  */
 async function DeleteAnActor({ id }) {
-  
-  const res1 = await MysqlClient.from("film_actor").where({ actor_id: id }).del();
+  const res1 = await MysqlClient.from("film_actor")
+    .where({ actor_id: id })
+    .del();
 
   const res = await MysqlClient.from("actor").where({ actor_id: id }).del();
-  
+
   if (res === 1) {
-    return { msg: `Actor with ID ${id} has been deleted successfully.` }; 
+    return { msg: `Actor with ID ${id} has been deleted successfully.` };
   } else {
     return { msg: `Actor with ID ${id} not found or already deleted.` };
   }
 }
 
-export { GetActors, DeleteAnActor };
+async function UpdateAnActor({ id, info }) {
+  const { first_name, last_name } = info;
+  const formattedDateTime = new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " ");
+  const res = await MysqlClient.from("actor")
+    .where({ actor_id: id })
+    .update({ first_name, last_name, last_update: formattedDateTime });
+  if (res > 0) {
+    return { msg: `Actor with ID ${id} has been updated successfully.` };
+  } else {
+    return { msg: `Actor with ID ${id} not found .` };
+  }
+}
+
+export { GetActors, DeleteAnActor, UpdateAnActor };
