@@ -22,6 +22,24 @@ async function GetActors({ skip, take }) {
 }
 
 /**
+ * @param { id:number } params
+ * @returns {Promise<Actor>}
+ */
+async function GetActorById(id) {
+  const actorData = await MysqlClient.from("actor")
+    .where({ actor_id: id })
+    .first();
+
+  if (!actorData) {
+    return { msg: `Actor ${id} not found` };
+  }
+
+  const actor = ActorSchema.parse(actorData);
+  return actor;
+}
+
+
+/**
  * @param { {id: number} } params
  * @returns { Promise<Void> }
  */
@@ -74,4 +92,5 @@ async function AddActor(actorData) {
   }
 }
 
-export { GetActors, DeleteAnActor, UpdateAnActor, AddActor };
+export { GetActors, GetActorById, DeleteAnActor, UpdateAnActor, AddActor };
+
