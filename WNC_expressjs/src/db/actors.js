@@ -21,4 +21,17 @@ async function GetActors({ skip, take }) {
   return result;
 }
 
-export { GetActors };
+async function GetActorById(id) {
+  const actorData = await MysqlClient.from("actor")
+    .where({ actor_id: id })
+    .first();
+
+  if (!actorData) {
+    return { msg: `Actor ${id} not found` };
+  }
+
+  const actor = ActorSchema.parse(actorData);
+  return actor;
+}
+
+export { GetActors, GetActorById };

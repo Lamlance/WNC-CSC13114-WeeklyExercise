@@ -10,6 +10,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// routes
 app.use("/api/actors/", actors_router);
 
 app.listen(PORT, (err) => {
