@@ -3,7 +3,7 @@ import actors_router from "./src/routes/api/actors.js";
 
 const app = express();
 const PORT = 3085;
-
+app.use(express.json());
 app.get("/", (req, res) => {
   res.status(200).json({
     Hello: "World",
