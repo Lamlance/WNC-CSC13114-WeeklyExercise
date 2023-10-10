@@ -1,5 +1,11 @@
 import express from "express";
-import { AddActor, GetActors, GetActorById, UpdateAnActor, DeleteAnActor } from "../../db/actors.js";
+import {
+  AddActor,
+  GetActors,
+  GetActorById,
+  UpdateAnActor,
+  DeleteAnActor,
+} from "../../db/actors.js";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { date, z } from "zod";
 
@@ -46,11 +52,10 @@ const ActorCreateSchema = z.object({
   last_name: z.string(),
 });
 
-
 actors_router.get("/", async function (req, res) {
   const [queries, q_err] = await CallAndCatchAsync(
     ActorGetSchema.parseAsync,
-    req.queryparams
+    req.query
   );
 
   if (q_err != null) {
@@ -62,7 +67,6 @@ actors_router.get("/", async function (req, res) {
   if (err != null) {
     return res.status(500).json({ error: "Something happend :))" });
   }
-  params;
 
   return res.status(200).json({ data: data });
 });
