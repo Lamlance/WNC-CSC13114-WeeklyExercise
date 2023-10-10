@@ -34,18 +34,10 @@ const ActorPatchSchema = z
     { message: "At least 1 value" }
   );
 
-const ActorPutSchema = z
-  .object({
-    last_name: z.string().optional(),
-    first_name: z.string().optional(),
-  })
-  .partial()
-  .refine(
-    function ({ last_name, first_name }) {
-      return !!last_name && !!first_name;
-    },
-    { message: "incomplete value" }
-  );
+const ActorPutSchema = z.object({
+  last_name: z.string().optional(),
+  first_name: z.string().optional(),
+});
 
 const ActorCreateSchema = z.object({
   first_name: z.string(),
@@ -104,7 +96,7 @@ actors_router.get("/:id", async function (req, res) {
     return res.status(400).json({ error: "Missing required parameter!" });
   }
 
-  const [data, err] = await CallAndCatchAsync(GetActorById, id);
+  const [data, err] = await CallAndCatchAsync(GetActorById, { id });
 
   if (err != null) {
     return res.status(500).json({ error: "Something went wrong!" }, err);
