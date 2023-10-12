@@ -1,5 +1,6 @@
 import express from "express";
 import actors_router from "./src/routes/api/actors.js";
+import films_router from "./src/routes/api/films.js";
 
 const app = express();
 const PORT = 3085;
@@ -12,6 +13,8 @@ app.get("/", (req, res) => {
 
 // routes
 app.use("/api/actors/", actors_router);
+
+app.use("/api/films/", films_router);
 
 app.listen(PORT, (err) => {
   if (!err) {
