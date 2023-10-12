@@ -11,6 +11,20 @@ const FilmSchema = z.object({
   rental_duration: z.number().min(0).max(255),
   rental_rate: z.coerce.number(),
   length: z.number(),
+  special_features: z.string().transform((data) => {
+    const features = data.split(",");
+    return z
+      .array(
+        z.union([
+          z.literal("Trailers"),
+          z.literal("Commentaries"),
+          z.literal("Deleted Scenes"),
+          z.literal("Behind the Scenes"),
+        ])
+      )
+      .nullable()
+      .parse(features);
+  }),
   replacement_cost: z.coerce.number(),
   rating: z.union([
     z.literal("G"),
