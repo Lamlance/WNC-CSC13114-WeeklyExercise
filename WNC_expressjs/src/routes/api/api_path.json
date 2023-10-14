@@ -33,23 +33,54 @@
         },
         "400": {
           "description": "Invalid take or skip value",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server ecounter an error",
+          "$ref": "#/components/responses/500ServerError"
+        }
+      }
+    }
+  },
+  "/films": {
+    "get": {
+      "tags": ["Film"],
+      "description": "Get many films",
+      "parameters": [
+        {
+          "in": "query",
+          "required": 0,
+          "name": "take",
+          "schema": { "type": "integer" }
+        },
+        {
+          "in": "query",
+          "required": 0,
+          "name": "skip",
+          "schema": { "type": "integer" }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Retrun a list of films",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Error"
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Film"
+                }
               }
             }
           }
         },
+        "400": {
+          "description": "Invalid take or skip value",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
         "500": {
           "description": "Server ecounter an error",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Error"
-              }
-            }
-          }
+          "$ref": "#/components/responses/500ServerError"
         }
       }
     }
