@@ -1,0 +1,56 @@
+{
+  "/actors": {
+    "get": {
+      "description": "Get many actors",
+      "parameters": [
+        {
+          "in": "query",
+          "required": 0,
+          "name": "take",
+          "schema": { "type": "integer" }
+        },
+        {
+          "in": "query",
+          "required": 0,
+          "name": "skip",
+          "schema": { "type": "integer" }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Retrun a list of actors",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Actor"
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid take or skip value",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Error"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Server ecounter an error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Error"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

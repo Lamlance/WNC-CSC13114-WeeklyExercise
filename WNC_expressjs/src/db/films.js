@@ -44,4 +44,4 @@ async function GetFilms({ skip, take }) {
   return z.array(FilmSchema).parse(data);
 }
 
-export { GetFilms };
+export { GetFilms, FilmSchema };
