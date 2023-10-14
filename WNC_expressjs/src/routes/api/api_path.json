@@ -1,6 +1,7 @@
 {
   "/actors": {
     "get": {
+      "tags": ["Actor"],
       "description": "Get many actors",
       "parameters": [
         {
