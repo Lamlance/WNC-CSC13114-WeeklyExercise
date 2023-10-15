@@ -1,0 +1,139 @@
+{
+  "/actors": {
+    "get": {
+      "tags": ["Actor"],
+      "description": "Get many actors",
+      "parameters": [
+        {
+          "in": "query",
+          "required": 0,
+          "name": "take",
+          "schema": { "type": "integer", "example": 10 }
+        },
+        {
+          "in": "query",
+          "required": 0,
+          "name": "skip",
+          "schema": { "type": "integer", "example": 0 }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Retrun a list of actors",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Actor"
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid take or skip value",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server ecounter an error",
+          "$ref": "#/components/responses/500ServerError"
+        }
+      }
+    },
+    "post": {
+      "tags": ["Actor"],
+      "description": "Add an actor to the db",
+      "requestBody": {
+        "required": 1,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ActorCreateBody" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Retrun the created actors",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Actor"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid take or skip value",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server ecounter an error",
+          "$ref": "#/components/responses/500ServerError"
+        }
+      }
+    }
+  },
+  "/actors/{id}": {
+    "get": {
+      "description": "Get detail of actor with the id",
+      "tags": ["Actor"],
+      "parameters": [
+        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Detail information of an actor",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ActorCreateBody" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/films": {
+    "get": {
+      "tags": ["Film"],
+      "description": "Get many films",
+      "parameters": [
+        {
+          "in": "query",
+          "required": 0,
+          "name": "take",
+          "schema": { "type": "integer" }
+        },
+        {
+          "in": "query",
+          "required": 0,
+          "name": "skip",
+          "schema": { "type": "integer" }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Retrun a list of films",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Film"
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid take or skip value",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server ecounter an error",
+          "$ref": "#/components/responses/500ServerError"
+        }
+      }
+    }
+  }
+}

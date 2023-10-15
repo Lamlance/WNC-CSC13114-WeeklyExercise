@@ -8,7 +8,6 @@ import {
 } from "../../db/actors.js";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { date, z } from "zod";
-
 const actors_router = express.Router();
 
 // Schema
@@ -86,7 +85,7 @@ actors_router.post("/", async function (req, res) {
     return res.status(500).json({ error: "Server error" });
   }
 
-  return res.status(201).json(actor);
+  return res.status(200).json(actor);
 });
 
 actors_router.get("/:id", async function (req, res) {
@@ -173,3 +172,4 @@ actors_router.delete("/:id", async function (req, res) {
 });
 
 export default actors_router;
+export { ActorCreateSchema };

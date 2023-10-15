@@ -94,4 +94,11 @@ async function AddActor({ first_name, last_name }) {
   }
 }
 
-export { GetActors, GetActorById, DeleteAnActor, UpdateAnActor, AddActor };
+export {
+  GetActors,
+  GetActorById,
+  DeleteAnActor,
+  UpdateAnActor,
+  AddActor,
+  ActorSchema,
+};
