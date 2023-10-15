@@ -40,6 +40,57 @@
           "$ref": "#/components/responses/500ServerError"
         }
       }
+    },
+    "post": {
+      "tags": ["Actor"],
+      "description": "Add an actor to the db",
+      "requestBody": {
+        "required": 1,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ActorCreateBody" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Retrun the created actors",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Actor"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid take or skip value",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server ecounter an error",
+          "$ref": "#/components/responses/500ServerError"
+        }
+      }
+    }
+  },
+  "/actors/{id}": {
+    "get": {
+      "description": "Get detail of actor with the id",
+      "tags": ["Actor"],
+      "parameters": [
+        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Detail information of an actor",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ActorCreateBody" }
+            }
+          }
+        }
+      }
     }
   },
   "/films": {
