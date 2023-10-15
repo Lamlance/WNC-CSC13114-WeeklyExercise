@@ -44,4 +44,18 @@ async function GetFilms({ skip, take }) {
   return z.array(FilmSchema).parse(data);
 }
 
-export { GetFilms, FilmSchema };
+/**
+ * @param { {id: number} } params
+ * @returns { Promise<Void> }
+ */
+async function DeleteAFilm({ id }) {
+  const res = await MysqlClient.from("film").where({ film_id: id }).del();
+
+  if (res === 1) {
+    return { msg: `Actor with ID ${id} has been deleted successfully.` };
+  } else {
+    return { msg: `Actor with ID ${id} not found or already deleted.` };
+  }
+}
+
+export { GetFilms, DeleteAFilm, FilmSchema };
