@@ -8,13 +8,13 @@
           "in": "query",
           "required": 0,
           "name": "take",
-          "schema": { "type": "integer" }
+          "schema": { "type": "integer", "example": 10 }
         },
         {
           "in": "query",
           "required": 0,
           "name": "skip",
-          "schema": { "type": "integer" }
+          "schema": { "type": "integer", "example": 0 }
         }
       ],
       "responses": {

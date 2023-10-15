@@ -14,10 +14,16 @@ const jsonSchema = {
       Actor: zodToJsonSchema(ActorSchema, {
         target: "openApi3",
       }),
+      ActorCreateBody: {
+        ...zodToJsonSchema(ActorCreateSchema, {
+          target: "openApi3",
+        }),
+        example: {
+          first_name: "Hoang",
+          last_name: "Lam",
+        },
+      },
       Film: zodToJsonSchema(FilmSchema, {
-        target: "openApi3",
-      }),
-      ActorCreateBody: zodToJsonSchema(ActorCreateSchema, {
         target: "openApi3",
       }),
       Error: {
