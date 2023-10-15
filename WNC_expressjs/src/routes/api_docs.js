@@ -32,6 +32,19 @@ const jsonSchema = {
           error: { type: "string" },
         },
       },
+      SimpleResponse: {
+        type: "object",
+        properties: {
+          msg: { type: "string" },
+        },
+      },
+      DetailErrorResponse: {
+        type: "object",
+        properties: {
+          msg: { type: "string" },
+          err: { type: "object" },
+        },
+      },
     },
     responses: {
       "400InvalidInput": {
@@ -52,6 +65,15 @@ const jsonSchema = {
           },
         },
       },
+      "500DetailServerError": {
+        content: {
+          "application/json": {
+            schema: {
+              $ref: "#/components/schemas/DetailErrorResponse",
+            },
+          },
+        },
+      }
     },
   },
 };
