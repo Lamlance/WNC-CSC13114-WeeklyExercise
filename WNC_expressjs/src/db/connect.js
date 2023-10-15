@@ -6,8 +6,8 @@ const db_connection = knex({
     host: "127.0.0.1",
     port: 3666,
     user: "root",
-    password: "123456",
-    database: "sakila_db",
+    password: "mysql",
+    database: "actor",
   },
 });
 
