@@ -7,7 +7,7 @@ import { ActorSchema } from "../db/actors.js";
 import { FilmSchema } from "../db/films.js";
 import APIPath from "./api/api_path.json" assert { type: "json" };
 
-import { ActorCreateSchema, ActorPutSchema } from "./api/actors.js";
+import { ActorCreateSchema, ActorPutSchema, ActorPatchSchema } from "./api/actors.js";
 import { FilmPutSchema } from "./api/films.js";
 
 
@@ -35,6 +35,15 @@ const jsonSchema = {
         example: {
           first_name: "Van",
           last_name: "Duc",
+        },
+      },
+      ActorUpdateBody4Patch: {
+        ...zodToJsonSchema(ActorPatchSchema, {
+          target: "openApi3",
+        }),
+        example: {
+          first_name: "Duy",
+          last_name: "Anh",
         },
       },
       Film: zodToJsonSchema(FilmSchema, {
@@ -103,7 +112,7 @@ const jsonSchema = {
       }
 
     },
-  },
+  // },
 };
 const options = {
   definition: {
