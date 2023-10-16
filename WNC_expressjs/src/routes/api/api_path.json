@@ -127,6 +127,40 @@
       }
     },
 
+    "patch": {
+      "description": "Update an actor by id using path method",
+      "tags": ["Actor"],
+      "requestBody": {
+        "required": 1,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ActorUpdateBody4Patch" }
+          }
+        }
+      },
+      "parameters": [
+        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Response message",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SimpleResponse" }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid id parameter",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server encounter an error",
+          "$ref": "#/components/responses/500DetailServerError"
+        }
+      }
+    },
+
     "delete": {
       "description": "Delete an actor by id",
       "tags": ["Actor"],
