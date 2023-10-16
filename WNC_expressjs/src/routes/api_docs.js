@@ -8,7 +8,7 @@ import { FilmSchema } from "../db/films.js";
 import APIPath from "./api/api_path.json" assert { type: "json" };
 
 import { ActorCreateSchema, ActorPutSchema, ActorPatchSchema } from "./api/actors.js";
-import { FilmPutSchema } from "./api/films.js";
+import { FilmPutSchema, FilmPatchSchema } from "./api/films.js";
 
 
 const jsonSchema = {
@@ -55,6 +55,15 @@ const jsonSchema = {
         }),
         example: {
           title: "Adventure",
+          language_id: 1,
+        },
+      },
+      FilmUpdateBody4Patch: {
+        ...zodToJsonSchema(FilmPatchSchema, {
+          target: "openApi3",
+        }),
+        example: {
+          title: "ANGELS LIFE",
           language_id: 1,
         },
       },
