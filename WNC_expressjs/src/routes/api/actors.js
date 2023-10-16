@@ -34,8 +34,10 @@ const ActorPatchSchema = z
   );
 
 const ActorPutSchema = z.object({
-  last_name: z.string().optional(),
-  first_name: z.string().optional(),
+
+  last_name: z.string(),
+  first_name: z.string(),
+
 });
 
 const ActorCreateSchema = z.object({
@@ -156,8 +158,6 @@ actors_router.patch("/:id", async function (req, res) {
 
 actors_router.delete("/:id", async function (req, res) {
   const { id } = req.params;
-  console.log("id", id);
-
   if (!id) {
     return res.status(400).json({ error: "Missing id!" });
   }
@@ -172,4 +172,7 @@ actors_router.delete("/:id", async function (req, res) {
 });
 
 export default actors_router;
-export { ActorCreateSchema };
+
+
+export { ActorCreateSchema, ActorPutSchema };
+
