@@ -266,6 +266,40 @@
       }
     },
 
+    "patch": {
+      "description": "Update a film by id using patch method",
+      "tags": ["Film"],
+      "requestBody": {
+        "required": 1,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/FilmUpdateBody4Patch" }
+          }
+        }
+      },
+      "parameters": [
+        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Response message",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SimpleResponse" }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid id parameter",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server encounter an error",
+          "$ref": "#/components/responses/500DetailServerError"
+        }
+      }
+    },
+
     "delete": {
       "description": "Delete a film by id",
       "tags": ["Film"],

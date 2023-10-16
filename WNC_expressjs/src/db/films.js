@@ -48,7 +48,7 @@ async function GetFilms({ skip, take }) {
 
 
 /**
- * @param {{id:number,info:object} actorFilm
+ * @param {{id:number,info:object}} actorFilm
  * @returns {Promise<{msg:string}>}
  */
 async function UpdateAFilm({ id, info }) {
