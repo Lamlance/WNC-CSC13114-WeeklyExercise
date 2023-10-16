@@ -1,12 +1,16 @@
 import express from "express";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { z } from "zod";
+
 import { GetFilms, DeleteAFilm, UpdateAFilm } from "../../db/films.js";
+
+
 const films_router = express.Router();
 const FilmGetSchema = z.object({
   take: z.coerce.number().default(10),
   skip: z.coerce.number().default(0),
 });
+
 
 const FilmPutSchema = z
   .object({
@@ -28,6 +32,7 @@ const FilmPutSchema = z
     { message: "Value is required " }
   );
 
+
 films_router.get("/", async function (req, res) {
   const [queries, err1] = await CallAndCatchAsync(
     FilmGetSchema.parseAsync,
@@ -43,6 +48,7 @@ films_router.get("/", async function (req, res) {
   }
   return res.status(200).json(films);
 });
+
 
 films_router.put("/:id", async function (req, res) {
   const { id } = req.params;
@@ -67,6 +73,7 @@ films_router.put("/:id", async function (req, res) {
   return res.status(200).json(data);
 });
 
+
 films_router.delete("/:id", async function (req, res) {
   const { id } = req.params;
   console.log("id", id);
@@ -85,4 +92,6 @@ films_router.delete("/:id", async function (req, res) {
 });
 
 export default films_router;
+
 export { FilmPutSchema };
+

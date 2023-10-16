@@ -6,8 +6,11 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ActorSchema } from "../db/actors.js";
 import { FilmSchema } from "../db/films.js";
 import APIPath from "./api/api_path.json" assert { type: "json" };
+
 import { ActorCreateSchema, ActorPutSchema } from "./api/actors.js";
 import { FilmPutSchema } from "./api/films.js";
+
+
 const jsonSchema = {
   openapi: "3.1.0",
   components: {
@@ -24,6 +27,7 @@ const jsonSchema = {
           last_name: "Lam",
         },
       },
+
       ActorUpdateBody: {
         ...zodToJsonSchema(ActorPutSchema, {
           target: "openApi3",
@@ -45,6 +49,7 @@ const jsonSchema = {
           language_id: 1,
         },
       },
+
       Error: {
         type: "object",
         properties: {
@@ -92,7 +97,11 @@ const jsonSchema = {
             },
           },
         },
+
       },
+
+      }
+
     },
   },
 };

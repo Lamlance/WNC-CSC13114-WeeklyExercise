@@ -22,6 +22,23 @@ async function GetActors({ skip, take }) {
 }
 
 /**
+ * @param { {id:number} } params
+ * @returns {Promise<Actor | {msg:string}>}
+ */
+async function GetActorById({ id }) {
+  const actorData = await MysqlClient.from("actor")
+    .where({ actor_id: id })
+    .first();
+
+  if (!actorData) {
+    return { msg: `Actor ${id} not found` };
+  }
+
+  const actor = ActorSchema.parse(actorData);
+  return actor;
+}
+
+/**
  * @param { {id: number} } params
  * @returns { Promise<Void> }
  */
@@ -39,15 +56,15 @@ async function DeleteAnActor({ id }) {
   }
 }
 
+/**
+ * @param {{id:number,info:{last_name:string,first_name:string}}} actorData
+ * @returns {Promise<{msg:string}>}
+ */
 async function UpdateAnActor({ id, info }) {
   const { first_name, last_name } = info;
-  const formattedDateTime = new Date()
-    .toISOString()
-    .slice(0, 19)
-    .replace("T", " ");
   const res = await MysqlClient.from("actor")
     .where({ actor_id: id })
-    .update({ first_name, last_name, last_update: formattedDateTime });
+    .update({ first_name, last_name });
   if (res > 0) {
     return { msg: `Actor with ID ${id} has been updated successfully.` };
   } else {
@@ -55,4 +72,33 @@ async function UpdateAnActor({ id, info }) {
   }
 }
 
-export { GetActors, DeleteAnActor, UpdateAnActor };
+/**
+ * @param {{last_name:string,first_name:string}} actorData
+ * @returns {Promise<number>}
+ */
+async function AddActor({ first_name, last_name }) {
+  try {
+    const [insertedActorId] = await MysqlClient("actor").insert({
+      first_name,
+      last_name,
+    });
+
+    if (insertedActorId) {
+      return insertedActorId;
+    } else {
+      throw new Error("Failed to add actor");
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error("Server error");
+  }
+}
+
+export {
+  GetActors,
+  GetActorById,
+  DeleteAnActor,
+  UpdateAnActor,
+  AddActor,
+  ActorSchema,
+};

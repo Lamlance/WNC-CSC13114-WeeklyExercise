@@ -92,6 +92,7 @@
         }
       }
     },
+
     "put": {
       "description": "Update an actor by id",
       "tags": ["Actor"],
@@ -125,6 +126,7 @@
         }
       }
     },
+
     "delete": {
       "description": "Delete an actor by id",
       "tags": ["Actor"],
@@ -195,6 +197,7 @@
     }
   },
   "/films/{id}": {
+
     "put": {
       "description": "Update a film by id",
       "tags": ["Film"],
@@ -228,6 +231,7 @@
         }
       }
     },
+
     "delete": {
       "description": "Delete a film by id",
       "tags": ["Film"],

@@ -46,6 +46,7 @@ async function GetFilms({ skip, take }) {
 
 
 
+
 /**
  * @param {{id:number,info:object} actorFilm
  * @returns {Promise<{msg:string}>}
@@ -62,6 +63,7 @@ async function UpdateAFilm({ id, info }) {
   }
 }
 
+
 /**
  * @param { {id: number} } params
  * @returns { Promise<Void> }
@@ -76,4 +78,6 @@ async function DeleteAFilm({ id }) {
   }
 }
 
+
 export { GetFilms,UpdateAFilm, DeleteAFilm, FilmSchema };
+
