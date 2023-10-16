@@ -22,6 +22,7 @@ const ActorPatchSchema = z
     { message: "At least 1 value" }
   );
 
+<<<<<<< Updated upstream
 const ActorPutSchema = z
   .object({
     last_name: z.string().optional(),
@@ -34,6 +35,17 @@ const ActorPutSchema = z
     },
     { message: "incomplete value" }
   );
+=======
+const ActorPutSchema = z.object({
+  last_name: z.string(),
+  first_name: z.string(),
+});
+
+const ActorCreateSchema = z.object({
+  first_name: z.string(),
+  last_name: z.string(),
+});
+>>>>>>> Stashed changes
 
 actors_router.get("/", async function (req, res) {
   const [queries, q_err] = await CallAndCatchAsync(
@@ -84,8 +96,6 @@ actors_router.put("/:id", async function (req, res) {
 });
 actors_router.delete("/:id", async function (req, res) {
   const { id } = req.params;
-  console.log("id", id);
-
   if (!id) {
     return res.status(400).json({ error: "Missing id!" });
   }
@@ -100,3 +110,7 @@ actors_router.delete("/:id", async function (req, res) {
 });
 
 export default actors_router;
+<<<<<<< Updated upstream
+=======
+export { ActorCreateSchema, ActorPutSchema };
+>>>>>>> Stashed changes
