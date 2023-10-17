@@ -45,9 +45,10 @@ async function GetFilms({ skip, take }) {
 }
 
 /**
- * @param {{id: string}} arg0
+ * @param {{id: number}} arg0
  */
 async function GetFilmById({ id }) {
+  console.log("get into film database");
   const data = await MysqlClient.from("film").where({ film_id: id }).first();
 
   if (!film) {
