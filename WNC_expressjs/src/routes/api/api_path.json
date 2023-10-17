@@ -249,6 +249,21 @@
               "schema": {
                 "$ref": "#/components/schemas/Film"
               }
+    }
+  },
+  "/films/{id}": {
+    "get": {
+      "description": "Get detail of film with the id",
+      "tags": ["Film"],
+      "parameters": [
+        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Detail information of a film",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Film" }
             }
           }
         },
@@ -265,6 +280,15 @@
   },
 
   "/films/{id}": {
+          "description": "Invalid id parameter",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server encounter an error",
+          "$ref": "#/components/responses/500DetailServerError"
+        }
+      }
+    },
 
     "put": {
       "description": "Update a film by id",

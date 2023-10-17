@@ -10,7 +10,6 @@ import APIPath from "./api/api_path.json" assert { type: "json" };
 import { ActorCreateSchema, ActorPutSchema, ActorPatchSchema } from "./api/actors.js";
 import { FilmPutSchema, FilmPatchSchema, FilmCreateSchema } from "./api/films.js";
 
-
 const jsonSchema = {
   openapi: "3.1.0",
   components: {
@@ -49,6 +48,7 @@ const jsonSchema = {
       Film: zodToJsonSchema(FilmSchema, {
         target: "openApi3",
       }),
+
       FilmCreateBody: {
         ...zodToJsonSchema(FilmCreateSchema, {
           target: "openApi3",
@@ -137,6 +137,12 @@ const jsonSchema = {
       },
     },
   },
+
+      },
+
+      }
+
+    },
   // },
 };
 const options = {

@@ -45,6 +45,21 @@ async function GetFilms({ skip, take }) {
 }
 
 /**
+ * @param {{id: number}} arg0
+ */
+async function GetFilmById({ id }) {
+  console.log("get into film database");
+  const data = await MysqlClient.from("film").where({ film_id: id }).first();
+
+  if (!film) {
+    return { msg: `Film with id = ${id} not found` };
+  }
+
+  const film = FilmSchema.parse(data);
+  return film;
+}
+
+/**
  * @param {{id:number,info:object}} actorFilm
  * @returns {Promise<{msg:string}>}
  */
@@ -91,4 +106,4 @@ async function CreateFilm(filmData) {
   }
 }
 
-export { GetFilms, UpdateAFilm, DeleteAFilm, CreateFilm, FilmSchema };
+export { GetFilms, GetFilmById, UpdateAFilm, DeleteAFilm, CreateFilm, FilmSchema };
