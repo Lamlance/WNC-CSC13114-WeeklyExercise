@@ -88,4 +88,22 @@ async function DeleteAFilm({ id }) {
   }
 }
 
-export { GetFilms, GetFilmById, UpdateAFilm, DeleteAFilm, FilmSchema };
+/**
+ * @param {Object} filmData
+ * @returns {Promise<number>}
+ */
+async function CreateFilm(filmData) {
+  try {
+    const [insertedFilm] = await MysqlClient("film").insert(filmData);
+
+    if (insertedFilm) {
+      return insertedFilm;
+    } else {
+      throw new Error("Failed to create a new film.");
+    }
+  } catch (error) {
+    throw new Error("Server error");
+  }
+}
+
+export { GetFilms, GetFilmById, UpdateAFilm, DeleteAFilm, CreateFilm, FilmSchema };

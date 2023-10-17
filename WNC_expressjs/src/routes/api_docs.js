@@ -8,8 +8,7 @@ import { FilmSchema } from "../db/films.js";
 import APIPath from "./api/api_path.json" assert { type: "json" };
 
 import { ActorCreateSchema, ActorPutSchema, ActorPatchSchema } from "./api/actors.js";
-import { FilmPutSchema, FilmPatchSchema } from "./api/films.js";
-
+import { FilmPutSchema, FilmPatchSchema, FilmCreateSchema } from "./api/films.js";
 
 const jsonSchema = {
   openapi: "3.1.0",
@@ -49,6 +48,26 @@ const jsonSchema = {
       Film: zodToJsonSchema(FilmSchema, {
         target: "openApi3",
       }),
+
+      FilmCreateBody: {
+        ...zodToJsonSchema(FilmCreateSchema, {
+          target: "openApi3",
+        }),
+        example: {
+          title: "The Eras Tour Concert Movie",
+          description: "Taylor Swift through 10 eras",
+          release_year: 2023,
+          language_id: 1,
+          original_language_id: 2,
+          rental_duration: 3,
+          rental_rate: 2.99,
+          length: 180,
+          special_features: "Trailers",
+          replacement_cost: 9.99,
+          rating: "PG"
+        },
+      },
+
       FilmUpdateBody: {
         ...zodToJsonSchema(FilmPutSchema, {
           target: "openApi3",
@@ -115,6 +134,9 @@ const jsonSchema = {
             },
           },
         },
+      },
+    },
+  },
 
       },
 

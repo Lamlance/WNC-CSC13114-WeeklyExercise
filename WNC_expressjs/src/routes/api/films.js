@@ -2,6 +2,10 @@ import express from "express";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { z } from "zod";
 
+import { GetFilms, DeleteAFilm, UpdateAFilm, CreateFilm, FilmSchema } from "../../db/films.js";
+
+const films_router = express.Router();
+
 import {
   GetFilms,
   GetFilmById,
@@ -11,10 +15,13 @@ import {
 
 console.log("get into film router");
 const films_router = express.Router();
+
 const FilmGetSchema = z.object({
   take: z.coerce.number().default(10),
   skip: z.coerce.number().default(0),
 });
+
+const FilmCreateSchema = FilmSchema.omit({ film_id: true , last_update:true});
 
 const FilmGetByIdSchema = z.object({
   id: z.coerce.number(),
@@ -32,13 +39,6 @@ const FilmPutSchema = z
     rental_duration: z.number(),
     rental_rate: z.number(),
   })
-  .partial()
-  .refine(
-    function ({ title, language_id }) {
-      return !!title && !!language_id;
-    },
-    { message: "Value is required " }
-  );
 
 const FilmPatchSchema = z
   .object({
@@ -75,6 +75,28 @@ films_router.get("/", async function (req, res) {
   }
   return res.status(200).json(films);
 });
+
+films_router.post("/", async function (req, res) {
+   let film = req.body;
+  const [filmData, err] = await CallAndCatchAsync(
+    FilmCreateSchema.parseAsync,
+    film
+  );
+  if (err != null) {
+    return res.status(400).json({ error: "Invalid data" });
+  }
+
+  const [data, creationErr] = await CallAndCatchAsync(CreateFilm, filmData);
+  film = {
+    film_id:data,
+    ...film,
+  };
+  console.log(film);
+  if (creationErr) {
+    return res.status(500).json({ msg: "Server error", error: creationErr });
+  }
+
+  return res.status(201).json(film);
 
 films_router.get("/:id", async function (req, res) {
   console.log("get into film id router");
@@ -162,5 +184,5 @@ films_router.delete("/:id", async function (req, res) {
 });
 
 export default films_router;
-
-export { FilmPutSchema, FilmPatchSchema };
+  
+export { FilmPutSchema, FilmPatchSchema, FilmCreateSchema };
