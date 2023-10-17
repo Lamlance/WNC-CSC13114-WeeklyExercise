@@ -2,15 +2,23 @@ import express from "express";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { z } from "zod";
 
-import { GetFilms, DeleteAFilm, UpdateAFilm } from "../../db/films.js";
+import {
+  GetFilms,
+  GetFilmById,
+  DeleteAFilm,
+  UpdateAFilm,
+} from "../../db/films.js";
 
-
+console.log("get into film router");
 const films_router = express.Router();
 const FilmGetSchema = z.object({
   take: z.coerce.number().default(10),
   skip: z.coerce.number().default(0),
 });
 
+const FilmGetByIdSchema = z.object({
+  id: z.coerce.number(),
+});
 
 const FilmPutSchema = z
   .object({
@@ -32,7 +40,6 @@ const FilmPutSchema = z
     { message: "Value is required " }
   );
 
-
 const FilmPatchSchema = z
   .object({
     title: z.string(),
@@ -53,7 +60,6 @@ const FilmPatchSchema = z
     { message: "Value is required " }
   );
 
-
 films_router.get("/", async function (req, res) {
   const [queries, err1] = await CallAndCatchAsync(
     FilmGetSchema.parseAsync,
@@ -70,6 +76,27 @@ films_router.get("/", async function (req, res) {
   return res.status(200).json(films);
 });
 
+films_router.get("/:id", async function (req, res) {
+  console.log("get into film id router");
+
+  const { id } = FilmGetByIdSchema.parse(req.params);
+
+  if (!id) {
+    return res.status(400).json({ error: "Missing required parameter!" });
+  }
+
+  const [data, err] = await CallAndCatchAsync(GetFilmById, { id });
+
+  if (err != null) {
+    return res.status(500).json({ error: "Something went wrong!" }, err);
+  }
+
+  if (!data) {
+    return res.status(404).json({ error: "Film not found!" });
+  }
+
+  return res.status(200).json({ data: data });
+});
 
 films_router.put("/:id", async function (req, res) {
   const { id } = req.params;
@@ -94,7 +121,6 @@ films_router.put("/:id", async function (req, res) {
   return res.status(200).json(data);
 });
 
-
 films_router.patch("/:id", async function (req, res) {
   const { id } = req.params;
   const [info, q_err] = await CallAndCatchAsync(
@@ -118,7 +144,6 @@ films_router.patch("/:id", async function (req, res) {
   return res.status(200).json(data);
 });
 
-
 films_router.delete("/:id", async function (req, res) {
   const { id } = req.params;
   console.log("id", id);
@@ -139,4 +164,3 @@ films_router.delete("/:id", async function (req, res) {
 export default films_router;
 
 export { FilmPutSchema, FilmPatchSchema };
-
