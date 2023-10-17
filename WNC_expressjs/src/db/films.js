@@ -44,15 +44,25 @@ async function GetFilms({ skip, take }) {
   return z.array(FilmSchema).parse(data);
 }
 
+/**
+ * @param {{id: string}} arg0
+ */
+async function GetFilmById({ id }) {
+  const data = await MysqlClient.from("film").where({ film_id: id }).first();
 
+  if (!film) {
+    return { msg: `Film with id = ${id} not found` };
+  }
 
+  const film = FilmSchema.parse(data);
+  return film;
+}
 
 /**
  * @param {{id:number,info:object}} actorFilm
  * @returns {Promise<{msg:string}>}
  */
 async function UpdateAFilm({ id, info }) {
-  
   const res = await MysqlClient.from("film")
     .where({ film_id: id })
     .update(info);
@@ -62,7 +72,6 @@ async function UpdateAFilm({ id, info }) {
     return { msg: `Film with ID ${id} not found .` };
   }
 }
-
 
 /**
  * @param { {id: number} } params
@@ -78,6 +87,4 @@ async function DeleteAFilm({ id }) {
   }
 }
 
-
-export { GetFilms,UpdateAFilm, DeleteAFilm, FilmSchema };
-
+export { GetFilms, GetFilmById, UpdateAFilm, DeleteAFilm, FilmSchema };

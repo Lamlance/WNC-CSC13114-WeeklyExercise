@@ -2,7 +2,7 @@ import express from "express";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { z } from "zod";
 
-import { GetFilms, DeleteAFilm, UpdateAFilm } from "../../db/films.js";
+import { GetFilms, GetFilmById, DeleteAFilm, UpdateAFilm } from "../../db/films.js";
 
 
 const films_router = express.Router();
@@ -10,6 +10,10 @@ const FilmGetSchema = z.object({
   take: z.coerce.number().default(10),
   skip: z.coerce.number().default(0),
 });
+
+const FilmGetByIdSchema = z.object({
+  id: z.coerce.string();
+})
 
 
 const FilmPutSchema = z
@@ -68,6 +72,26 @@ films_router.get("/", async function (req, res) {
     return res.status(500).json({ error: "Server error" });
   }
   return res.status(200).json(films);
+});
+
+films_router.get("/:id", async function (req, res) {
+  const { id } = FilmGetByIdSchema.parse(req.params);
+
+  if (!id) {
+    return res.status(400).json({ error: "Missing required parameter!" });
+  }
+
+  const [data, err] = await CallAndCatchAsync(GetFilmById, { id });
+
+  if (err != null) {
+    return res.status(500).json({ error: "Something went wrong!" }, err);
+  }
+
+  if (!data) {
+    return res.status(404).json({ error: "Film not found!" });
+  }
+
+  return res.status(200).json({ data: data });
 });
 
 
