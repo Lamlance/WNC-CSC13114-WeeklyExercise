@@ -137,13 +137,6 @@ const jsonSchema = {
       },
     },
   },
-
-      },
-
-      }
-
-    },
-  // },
 };
 const options = {
   definition: {
