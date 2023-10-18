@@ -2,18 +2,8 @@ import express from "express";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { z } from "zod";
 
-import { GetFilms, DeleteAFilm, UpdateAFilm, CreateFilm, FilmSchema } from "../../db/films.js";
+import { GetFilms, GetFilmById, DeleteAFilm, UpdateAFilm, CreateFilm, FilmSchema } from "../../db/films.js";
 
-const films_router = express.Router();
-
-import {
-  GetFilms,
-  GetFilmById,
-  DeleteAFilm,
-  UpdateAFilm,
-} from "../../db/films.js";
-
-console.log("get into film router");
 const films_router = express.Router();
 
 const FilmGetSchema = z.object({
@@ -97,6 +87,7 @@ films_router.post("/", async function (req, res) {
   }
 
   return res.status(201).json(film);
+});
 
 films_router.get("/:id", async function (req, res) {
   console.log("get into film id router");
