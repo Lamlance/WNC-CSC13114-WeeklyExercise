@@ -51,8 +51,8 @@ async function GetFilmById({ id }) {
   console.log("get into film database");
   const data = await MysqlClient.from("film").where({ film_id: id }).first();
 
-  if (!film) {
-    return { msg: `Film with id = ${id} not found` };
+  if (!data) {
+    return null;
   }
 
   const film = FilmSchema.parse(data);
@@ -106,4 +106,11 @@ async function CreateFilm(filmData) {
   }
 }
 
-export { GetFilms, GetFilmById, UpdateAFilm, DeleteAFilm, CreateFilm, FilmSchema };
+export {
+  GetFilms,
+  GetFilmById,
+  UpdateAFilm,
+  DeleteAFilm,
+  CreateFilm,
+  FilmSchema,
+};

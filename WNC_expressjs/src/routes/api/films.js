@@ -1,8 +1,14 @@
 import express from "express";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { z } from "zod";
-
-import { GetFilms, GetFilmById, DeleteAFilm, UpdateAFilm, CreateFilm, FilmSchema } from "../../db/films.js";
+import {
+  GetFilms,
+  DeleteAFilm,
+  UpdateAFilm,
+  CreateFilm,
+  FilmSchema,
+  GetFilmById,
+} from "../../db/films.js";
 
 const films_router = express.Router();
 
@@ -11,44 +17,20 @@ const FilmGetSchema = z.object({
   skip: z.coerce.number().default(0),
 });
 
-const FilmCreateSchema = FilmSchema.omit({ film_id: true , last_update:true});
+const FilmCreateSchema = FilmSchema.omit({ film_id: true, last_update: true });
 
 const FilmGetByIdSchema = z.object({
   id: z.coerce.number(),
 });
 
-const FilmPutSchema = z
-  .object({
-    title: z.string(),
-    description: z.string().optional(),
-    release_year: z.number(),
-    language_id: z.number(),
-    length: z.number(),
-    special_features: z.string().optional(),
-    original_language_id: z.number(),
-    rental_duration: z.number(),
-    rental_rate: z.number(),
-  })
+const FilmPutSchema = FilmSchema.omit({ film_id: true, last_update: true });
 
-const FilmPatchSchema = z
-  .object({
-    title: z.string(),
-    description: z.string().optional(),
-    release_year: z.number(),
-    language_id: z.number(),
-    length: z.number(),
-    special_features: z.string().optional(),
-    original_language_id: z.number(),
-    rental_duration: z.number(),
-    rental_rate: z.number(),
-  })
-  .partial()
-  .refine(
-    function ({ title, language_id }) {
-      return !!title && !!language_id;
-    },
-    { message: "Value is required " }
-  );
+const FilmPatchSchema = FilmPutSchema.partial().refine(
+  function ({ title, language_id }) {
+    return !!title && !!language_id;
+  },
+  { message: "Title & language id " }
+);
 
 films_router.get("/", async function (req, res) {
   const [queries, err1] = await CallAndCatchAsync(
@@ -67,7 +49,7 @@ films_router.get("/", async function (req, res) {
 });
 
 films_router.post("/", async function (req, res) {
-   let film = req.body;
+  let film = req.body;
   const [filmData, err] = await CallAndCatchAsync(
     FilmCreateSchema.parseAsync,
     film
@@ -78,14 +60,13 @@ films_router.post("/", async function (req, res) {
 
   const [data, creationErr] = await CallAndCatchAsync(CreateFilm, filmData);
   film = {
-    film_id:data,
+    film_id: data,
     ...film,
   };
   console.log(film);
   if (creationErr) {
     return res.status(500).json({ msg: "Server error", error: creationErr });
   }
-
   return res.status(201).json(film);
 });
 
@@ -101,7 +82,7 @@ films_router.get("/:id", async function (req, res) {
   const [data, err] = await CallAndCatchAsync(GetFilmById, { id });
 
   if (err != null) {
-    return res.status(500).json({ error: "Something went wrong!" }, err);
+    return res.status(500).json({ error: "Something went wrong!", error: err });
   }
 
   if (!data) {
@@ -175,5 +156,5 @@ films_router.delete("/:id", async function (req, res) {
 });
 
 export default films_router;
-  
+
 export { FilmPutSchema, FilmPatchSchema, FilmCreateSchema };

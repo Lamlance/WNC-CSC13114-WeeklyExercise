@@ -7,8 +7,16 @@ import { ActorSchema } from "../db/actors.js";
 import { FilmSchema } from "../db/films.js";
 import APIPath from "./api/api_path.json" assert { type: "json" };
 
-import { ActorCreateSchema, ActorPutSchema, ActorPatchSchema } from "./api/actors.js";
-import { FilmPutSchema, FilmPatchSchema, FilmCreateSchema } from "./api/films.js";
+import {
+  ActorCreateSchema,
+  ActorPutSchema,
+  ActorPatchSchema,
+} from "./api/actors.js";
+import {
+  FilmPutSchema,
+  FilmPatchSchema,
+  FilmCreateSchema,
+} from "./api/films.js";
 
 const jsonSchema = {
   openapi: "3.1.0",
@@ -64,7 +72,7 @@ const jsonSchema = {
           length: 180,
           special_features: "Trailers",
           replacement_cost: 9.99,
-          rating: "PG"
+          rating: "PG",
         },
       },
 
@@ -73,8 +81,17 @@ const jsonSchema = {
           target: "openApi3",
         }),
         example: {
-          title: "Adventure",
+          title: "The Eras Tour Concert Movie",
+          description: "Taylor Swift through 10 eras",
+          release_year: 2023,
           language_id: 1,
+          original_language_id: 2,
+          rental_duration: 3,
+          rental_rate: 2.99,
+          length: 180,
+          special_features: "Trailers",
+          replacement_cost: 9.99,
+          rating: "PG",
         },
       },
       FilmUpdateBody4Patch: {
@@ -138,6 +155,7 @@ const jsonSchema = {
     },
   },
 };
+
 const options = {
   definition: {
     openapi: "3.1.0",

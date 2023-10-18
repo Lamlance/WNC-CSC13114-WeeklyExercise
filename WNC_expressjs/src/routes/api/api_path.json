@@ -1,9 +1,7 @@
 {
   "/actors": {
     "get": {
-      "tags": [
-        "Actor"
-      ],
+      "tags": ["Actor"],
       "description": "Get many actors",
       "parameters": [
         {
@@ -50,9 +48,7 @@
       }
     },
     "post": {
-      "tags": [
-        "Actor"
-      ],
+      "tags": ["Actor"],
       "description": "Add an actor to the db",
       "requestBody": {
         "required": 1,
@@ -89,9 +85,7 @@
   "/actors/{id}": {
     "get": {
       "description": "Get detail of actor with the id",
-      "tags": [
-        "Actor"
-      ],
+      "tags": ["Actor"],
       "parameters": [
         {
           "in": "path",
@@ -116,9 +110,7 @@
     },
     "put": {
       "description": "Update an actor by id",
-      "tags": [
-        "Actor"
-      ],
+      "tags": ["Actor"],
       "requestBody": {
         "required": 1,
         "content": {
@@ -161,9 +153,7 @@
     },
     "patch": {
       "description": "Update an actor by id using path method",
-      "tags": [
-        "Actor"
-      ],
+      "tags": ["Actor"],
       "requestBody": {
         "required": 1,
         "content": {
@@ -206,9 +196,7 @@
     },
     "delete": {
       "description": "Delete an actor by id",
-      "tags": [
-        "Actor"
-      ],
+      "tags": ["Actor"],
       "parameters": [
         {
           "in": "path",
@@ -242,9 +230,7 @@
   },
   "/films": {
     "get": {
-      "tags": [
-        "Film"
-      ],
+      "tags": ["Film"],
       "description": "Get many films",
       "parameters": [
         {
@@ -289,9 +275,7 @@
       }
     },
     "post": {
-      "tags": [
-        "Film"
-      ],
+      "tags": ["Film"],
       "description": "Add a film to the db",
       "requestBody": {
         "required": 1,
@@ -328,9 +312,7 @@
   "/films/{id}": {
     "get": {
       "description": "Get detail of film with the id",
-      "tags": [
-        "Film"
-      ],
+      "tags": ["Film"],
       "parameters": [
         {
           "in": "path",
@@ -363,9 +345,7 @@
     },
     "put": {
       "description": "Update a film by id",
-      "tags": [
-        "Film"
-      ],
+      "tags": ["Film"],
       "requestBody": {
         "required": 1,
         "content": {
@@ -408,9 +388,7 @@
     },
     "patch": {
       "description": "Update a film by id using patch method",
-      "tags": [
-        "Film"
-      ],
+      "tags": ["Film"],
       "requestBody": {
         "required": 1,
         "content": {
@@ -453,9 +431,7 @@
     },
     "delete": {
       "description": "Delete a film by id",
-      "tags": [
-        "Film"
-      ],
+      "tags": ["Film"],
       "parameters": [
         {
           "in": "path",
