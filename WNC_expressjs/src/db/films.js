@@ -10,21 +10,26 @@ const FilmSchema = z.object({
   original_language_id: z.number().min(0).max(255).nullable(),
   rental_duration: z.number().min(0).max(255),
   rental_rate: z.coerce.number(),
-  length: z.number(),
-  special_features: z.string().transform((data) => {
-    const features = data.split(",");
-    return z
-      .array(
-        z.union([
-          z.literal("Trailers"),
-          z.literal("Commentaries"),
-          z.literal("Deleted Scenes"),
-          z.literal("Behind the Scenes"),
-        ])
-      )
-      .nullable()
-      .parse(features);
-  }),
+  length: z.number().nullable(),
+  special_features: z
+    .string()
+    .nullable()
+    .transform((data) => {
+      if (!data) {
+        return data;
+      }
+      const features = data.split(",");
+      return z
+        .array(
+          z.union([
+            z.literal("Trailers"),
+            z.literal("Commentaries"),
+            z.literal("Deleted Scenes"),
+            z.literal("Behind the Scenes"),
+          ])
+        )
+        .parse(features);
+    }),
   replacement_cost: z.coerce.number(),
   rating: z.union([
     z.literal("G"),
