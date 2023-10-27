@@ -10,7 +10,6 @@ async function CallAndCatchAsync(func, params) {
     const data = await func(params);
     return [data, null];
   } catch (e) {
-    console.warn(e);
     return [null, e];
   }
 }

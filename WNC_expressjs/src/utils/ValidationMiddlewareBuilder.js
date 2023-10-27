@@ -9,9 +9,10 @@ function validation_mw_builder_queries(zodSchema) {
   return function (req, res, next) {
     const data = zodSchema.safeParse(req.query);
     if (!data.success) {
-      return res
-        .status(400)
-        .json({ message: "Invalid queries", error: data.error });
+      return res.status(400).json({
+        message: "Invalid queries",
+        error: data.error.errors.map((e) => e.message),
+      });
     }
     res.locals.query = data.data;
     next();
@@ -26,9 +27,10 @@ function validation_mw_builder_params(zodSchema) {
   return function (req, res, next) {
     const data = zodSchema.safeParse(req.params);
     if (!data.success) {
-      return res
-        .status(400)
-        .json({ message: "Invalid params", error: data.error });
+      return res.status(400).json({
+        message: "Invalid params",
+        error: data.error.errors.map((e) => e.message),
+      });
     }
     res.locals.params = data.data;
     next();
@@ -45,7 +47,10 @@ function validation_mw_builder_body(zodSchema) {
     if (!data.success) {
       return res
         .status(400)
-        .json({ message: "Invalid body", error: data.error });
+        .json({
+          message: "Invalid body",
+          error: data.error.errors.map((e) => e.message),
+        });
     }
     res.locals.body = data.data;
     next();
