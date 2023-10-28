@@ -156,7 +156,7 @@ actors_router.patch("/:id", async function (req, res) {
   return res.status(200).json(data);
 });
 
-actors_router.delete("/:id", async function (req, res) {
+actors_router.delete("/:id", async function (req, res, next) {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({ error: "Missing id!" });
@@ -165,7 +165,7 @@ actors_router.delete("/:id", async function (req, res) {
   const [data, err] = await CallAndCatchAsync(DeleteAnActor, { id });
 
   if (err) {
-    return res.status(500).json({ msg: "Server error!", error: err });
+    next(err)
   }
 
   return res.status(200).json(data);
