@@ -141,7 +141,7 @@ films_router.delete(
     });
 
     if (err) {
-      return res.status(500).json({ msg: "Server error!", error: err });
+      next(err)
     }
 
     return res.status(200).json(data);
