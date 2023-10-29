@@ -14,8 +14,10 @@ import {
   validation_mw_builder_params,
   validation_mw_builder_queries,
 } from "../../utils/ValidationMiddlewareBuilder.js";
+import logMiddleware from "../../utils/logMiddleware.js";
 
 const films_router = express.Router();
+films_router.use(logMiddleware);
 
 const FilmGetSchema = z.object({
   take: z.coerce.number().default(10),

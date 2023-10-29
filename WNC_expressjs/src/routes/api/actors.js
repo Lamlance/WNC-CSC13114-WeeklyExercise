@@ -8,8 +8,10 @@ import {
 } from "../../db/actors.js";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { date, z } from "zod";
-const actors_router = express.Router();
+import logMiddleware from "../../utils/logMiddleware.js";
 
+const actors_router = express.Router();
+actors_router.use(logMiddleware);
 // Schema
 const ActorGetSchema = z.object({
   take: z.coerce.number().default(10),
