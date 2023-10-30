@@ -19,8 +19,9 @@ const dailyTransport = new DailyRotateFile({
 const logger = createLogger({
   level: "debug",
   format: format.combine(
+    format.json(),
     format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-    format.json()
+    format.metadata()
   ),
   transports: [
     new transports.Console({ consoleWarnLevels: ["error"], level: "error" }),
@@ -34,13 +35,9 @@ const logger = createLogger({
       maxFiles: "14d",
     }),
     new MongoDB({
-      db: "", // mongodb://mongodb-uri
+      db: "mongodb+srv://test:test@cluster0.nrip29m.mongodb.net/",
       level: "info",
       collection: "logs",
-      format: format.combine(
-        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.json()
-      ),
       options: { useUnifiedTopology: true },
     }),
     minuteTransport,
