@@ -6,13 +6,7 @@ const { MongoDB } = pkg;
 import "winston-syslog";
 import os from "os";
 
-const papertrail = new transports.Syslog({
-  host: 'logs4.papertrailapp.com',
-  port: 16512,
-  protocol: 'tls4',
-  localhost: os.hostname(),
-  eol: '\n',
-});
+
 const minuteTransport = new DailyRotateFile({
   filename: "./logs/%DATE%/application-%DATE%.log",
   frequency: "m",
@@ -36,6 +30,13 @@ const logger = createLogger({
     new transports.Console({ consoleWarnLevels: ["error"], level: "error" }),
     new transports.File({ filename: "./logs/error.log", level: "error" }),
     new transports.File({ filename: "./logs/combined.log" }),
+    new transports.Syslog({
+      host: 'logs4.papertrailapp.com',
+      port: 16512,
+      protocol: 'tls4',
+      localhost: os.hostname(),
+      eol: '\n',
+    }),
     new DailyRotateFile({
       filename: "./logs/%DATE%/application-%DATE%.log",
       datePattern: "YYYY-MM-DD",
@@ -51,7 +52,6 @@ const logger = createLogger({
     }),
     minuteTransport,
     dailyTransport,
-    papertrail,
   ],
 });
 
