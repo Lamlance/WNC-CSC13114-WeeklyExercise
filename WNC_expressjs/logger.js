@@ -2,6 +2,7 @@ import { createLogger, format, transports } from "winston";
 import { default as pm2_io } from "@pm2/io";
 import DailyRotateFile from "winston-daily-rotate-file";
 
+
 const minuteTransport = new DailyRotateFile({
   filename: "./logs/%DATE%/application-%DATE%.log",
   frequency: "m",
@@ -13,6 +14,7 @@ const dailyTransport = new DailyRotateFile({
   frequency: "d",
   datePattern: "YYYY-MM-DD",
 });
+
 
 const logger = createLogger({
   level: "debug",
@@ -31,8 +33,10 @@ const logger = createLogger({
       maxSize: "2m",
       maxFiles: "14d",
     }),
+
     minuteTransport,
     dailyTransport,
+
   ],
 });
 

@@ -8,8 +8,10 @@ import {
 } from "../../db/actors.js";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { date, z } from "zod";
-const actors_router = express.Router();
+import logMiddleware from "../../utils/logMiddleware.js";
 
+const actors_router = express.Router();
+actors_router.use(logMiddleware);
 // Schema
 const ActorGetSchema = z.object({
   take: z.coerce.number().default(10),
@@ -154,7 +156,7 @@ actors_router.patch("/:id", async function (req, res) {
   return res.status(200).json(data);
 });
 
-actors_router.delete("/:id", async function (req, res) {
+actors_router.delete("/:id", async function (req, res, next) {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({ error: "Missing id!" });
@@ -163,7 +165,9 @@ actors_router.delete("/:id", async function (req, res) {
   const [data, err] = await CallAndCatchAsync(DeleteAnActor, { id });
 
   if (err) {
+
     next(err);
+
   }
 
   return res.status(200).json(data);
@@ -171,4 +175,8 @@ actors_router.delete("/:id", async function (req, res) {
 
 export default actors_router;
 
+
+
 export { ActorCreateSchema, ActorPutSchema, ActorPatchSchema };
+
+

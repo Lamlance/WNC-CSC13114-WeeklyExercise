@@ -8,13 +8,19 @@
           "in": "query",
           "required": 0,
           "name": "take",
-          "schema": { "type": "integer", "example": 10 }
+          "schema": {
+            "type": "integer",
+            "example": 10
+          }
         },
         {
           "in": "query",
           "required": 0,
           "name": "skip",
-          "schema": { "type": "integer", "example": 0 }
+          "schema": {
+            "type": "integer",
+            "example": 0
+          }
         }
       ],
       "responses": {
@@ -48,7 +54,9 @@
         "required": 1,
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/ActorCreateBody" }
+            "schema": {
+              "$ref": "#/components/schemas/ActorCreateBody"
+            }
           }
         }
       },
@@ -79,20 +87,27 @@
       "description": "Get detail of actor with the id",
       "tags": ["Actor"],
       "parameters": [
-        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          }
+        }
       ],
       "responses": {
         "200": {
           "description": "Detail information of an actor",
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ActorCreateBody" }
+              "schema": {
+                "$ref": "#/components/schemas/ActorCreateBody"
+              }
             }
           }
         }
       }
     },
-
     "put": {
       "description": "Update an actor by id",
       "tags": ["Actor"],
@@ -100,19 +115,29 @@
         "required": 1,
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/ActorUpdateBody" }
+            "schema": {
+              "$ref": "#/components/schemas/ActorUpdateBody"
+            }
           }
         }
       },
       "parameters": [
-        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          }
+        }
       ],
       "responses": {
         "200": {
           "description": "Response message",
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SimpleResponse" }
+              "schema": {
+                "$ref": "#/components/schemas/SimpleResponse"
+              }
             }
           }
         },
@@ -126,19 +151,69 @@
         }
       }
     },
-
-    "delete": {
-      "description": "Delete an actor by id",
+    "patch": {
+      "description": "Update an actor by id using path method",
       "tags": ["Actor"],
+      "requestBody": {
+        "required": 1,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ActorUpdateBody4Patch"
+            }
+          }
+        }
+      },
       "parameters": [
-        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          }
+        }
       ],
       "responses": {
         "200": {
           "description": "Response message",
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SimpleResponse" }
+              "schema": {
+                "$ref": "#/components/schemas/SimpleResponse"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid id parameter",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server encounter an error",
+          "$ref": "#/components/responses/500DetailServerError"
+        }
+      }
+    },
+    "delete": {
+      "description": "Delete an actor by id",
+      "tags": ["Actor"],
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Response message",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimpleResponse"
+              }
             }
           }
         },
@@ -162,13 +237,17 @@
           "in": "query",
           "required": 0,
           "name": "take",
-          "schema": { "type": "integer" }
+          "schema": {
+            "type": "integer"
+          }
         },
         {
           "in": "query",
           "required": 0,
           "name": "skip",
-          "schema": { "type": "integer" }
+          "schema": {
+            "type": "integer"
+          }
         }
       ],
       "responses": {
@@ -194,10 +273,76 @@
           "$ref": "#/components/responses/500ServerError"
         }
       }
+    },
+    "post": {
+      "tags": ["Film"],
+      "description": "Add a film to the db",
+      "requestBody": {
+        "required": 1,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FilmCreateBody"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Return the created film",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Film"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid request body",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server ecounter an error",
+          "$ref": "#/components/responses/500ServerError"
+        }
+      }
     }
   },
   "/films/{id}": {
-
+    "get": {
+      "description": "Get detail of film with the id",
+      "tags": ["Film"],
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Detail information of a film",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Film"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid request body",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server ecounter an error",
+          "$ref": "#/components/responses/500ServerError"
+        }
+      }
+    },
     "put": {
       "description": "Update a film by id",
       "tags": ["Film"],
@@ -205,19 +350,29 @@
         "required": 1,
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/FilmUpdateBody" }
+            "schema": {
+              "$ref": "#/components/schemas/FilmUpdateBody"
+            }
           }
         }
       },
       "parameters": [
-        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          }
+        }
       ],
       "responses": {
         "200": {
           "description": "Response message",
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SimpleResponse" }
+              "schema": {
+                "$ref": "#/components/schemas/SimpleResponse"
+              }
             }
           }
         },
@@ -231,19 +386,69 @@
         }
       }
     },
-
-    "delete": {
-      "description": "Delete a film by id",
+    "patch": {
+      "description": "Update a film by id using patch method",
       "tags": ["Film"],
+      "requestBody": {
+        "required": 1,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FilmUpdateBody4Patch"
+            }
+          }
+        }
+      },
       "parameters": [
-        { "in": "path", "name": "id", "schema": { "type": "integer" } }
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          }
+        }
       ],
       "responses": {
         "200": {
           "description": "Response message",
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SimpleResponse" }
+              "schema": {
+                "$ref": "#/components/schemas/SimpleResponse"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid id parameter",
+          "$ref": "#/components/responses/400InvalidInput"
+        },
+        "500": {
+          "description": "Server encounter an error",
+          "$ref": "#/components/responses/500DetailServerError"
+        }
+      }
+    },
+    "delete": {
+      "description": "Delete a film by id",
+      "tags": ["Film"],
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Response message",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimpleResponse"
+              }
             }
           }
         },

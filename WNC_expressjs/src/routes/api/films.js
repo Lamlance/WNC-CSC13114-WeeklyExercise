@@ -1,73 +1,138 @@
 import express from "express";
 import { CallAndCatchAsync } from "../../utils/utils.js";
 import { z } from "zod";
-
-import { GetFilms, DeleteAFilm, UpdateAFilm } from "../../db/films.js";
+import {
+  GetFilms,
+  DeleteAFilm,
+  UpdateAFilm,
+  CreateFilm,
+  FilmSchema,
+  GetFilmById,
+} from "../../db/films.js";
+import {
+  validation_mw_builder_body,
+  validation_mw_builder_params,
+  validation_mw_builder_queries,
+} from "../../utils/ValidationMiddlewareBuilder.js";
+import logMiddleware from "../../utils/logMiddleware.js";
 
 const films_router = express.Router();
+films_router.use(logMiddleware);
+
 const FilmGetSchema = z.object({
   take: z.coerce.number().default(10),
   skip: z.coerce.number().default(0),
 });
 
-const FilmPutSchema = z
-  .object({
-    title: z.string(),
-    description: z.string().optional(),
-    release_year: z.number(),
-    language_id: z.number(),
-    length: z.number(),
-    special_features: z.string().optional(),
-    original_language_id: z.number(),
-    rental_duration: z.number(),
-    rental_rate: z.number(),
-  })
+const FilmCreateSchema = FilmSchema.omit({ film_id: true, last_update: true })
   .partial()
   .refine(
-    function ({ title, language_id }) {
-      return !!title && !!language_id;
+    function ({ title, language_id, description }) {
+      return !!title && !!language_id && !!description;
     },
-    { message: "Value is required " }
+    { message: "At least need title, description and language_id" }
   );
 
-films_router.get("/", async function (req, res) {
-  const [queries, err1] = await CallAndCatchAsync(
-    FilmGetSchema.parseAsync,
-    req.query
-  );
-  if (err1 != null) {
-    return res.status(400).json({ error: "Invalid queries" });
-  }
-
-  const [films, err2] = await CallAndCatchAsync(GetFilms, queries);
-  if (err2 != null) {
-    return res.status(500).json({ error: "Server error" });
-  }
-  return res.status(200).json(films);
+const FilmGetByIdSchema = z.object({
+  id: z.coerce.number(),
 });
 
-films_router.put("/:id", async function (req, res) {
-  const { id } = req.params;
-  const [info, q_err] = await CallAndCatchAsync(
-    FilmPutSchema.parseAsync,
-    req.body
-  );
-  if (q_err != null) {
-    return res.status(400).json({ error: "Invalid params" });
+const FilmPutSchema = FilmSchema.omit({ film_id: true, last_update: true });
+
+const FilmPatchSchema = FilmPutSchema.partial().refine(
+  function ({ title, language_id }) {
+    return !!title && !!language_id;
+  },
+  { message: "Title & language id " }
+);
+
+films_router.get(
+  "/",
+  validation_mw_builder_queries(FilmGetSchema),
+  async function (req, res, next) {
+    const [films, err2] = await CallAndCatchAsync(GetFilms, res.locals.query);
+    if (err2 != null) {
+      return next(err2);
+    }
+    return res.status(200).json(films);
   }
+);
 
-  if (!id) {
-    return res.status(400).json({ error: "Missing id!" });
+films_router.post(
+  "/",
+  validation_mw_builder_body(FilmCreateSchema),
+  async function (req, res, next) {
+    const [data, creationErr] = await CallAndCatchAsync(
+      CreateFilm,
+      res.locals.body
+    );
+    const film = {
+      film_id: data,
+      ...res.locals.body,
+    };
+    console.log(film);
+    if (creationErr) {
+      return res.status(500).json({ msg: "Server error", error: creationErr });
+    }
+    return res.status(201).json(film);
   }
+);
 
-  const [data, err] = await CallAndCatchAsync(UpdateAFilm, { id, info });
+films_router.get(
+  "/:id",
+  validation_mw_builder_params(FilmGetByIdSchema),
+  async function (req, res, next) {
+    const [data, err] = await CallAndCatchAsync(GetFilmById, res.locals.params);
 
-  if (err) {
-    next(err);
+    if (err != null) {
+      return res
+        .status(500)
+        .json({ error: "Something went wrong!", error: err });
+    }
+
+    if (!data) {
+      return res.status(404).json({ error: "Film not found!" });
+    }
+
+    return res.status(200).json({ data: data });
   }
+);
 
-  return res.status(200).json(data);
-});
+films_router.put(
+  "/:id",
+  validation_mw_builder_params(FilmGetByIdSchema),
+  validation_mw_builder_body(FilmPutSchema),
+  async function (req, res, next) {
+    const [data, err] = await CallAndCatchAsync(UpdateAFilm, {
+      id: res.locals.params.id,
+      info: res.locals.body,
+    });
+
+     if (err) {
+      next(err)
+    }
+
+    return res.status(200).json(data);
+  }
+);
+
+films_router.patch(
+  "/:id",
+  validation_mw_builder_params(FilmGetByIdSchema),
+  validation_mw_builder_body(FilmPatchSchema),
+  async function (req, res, next) {
+    const [data, err] = await CallAndCatchAsync(UpdateAFilm, {
+      id: res.locals.params.id,
+      info: res.locals.body,
+    });
+
+    if (err) {
+      return res.status(500).json({ msg: "Server error!", error: err });
+    }
+
+    return res.status(200).json(data);
+  }
+);
 
 films_router.delete(
   "/:id",
@@ -78,7 +143,7 @@ films_router.delete(
     });
 
     if (err) {
-      next(err);
+      next(err)
     }
 
     return res.status(200).json(data);
@@ -87,4 +152,4 @@ films_router.delete(
 
 export default films_router;
 
-export { FilmPutSchema };
+export { FilmPutSchema, FilmPatchSchema, FilmCreateSchema };
