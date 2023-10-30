@@ -3,7 +3,16 @@ import { default as pm2_io } from "@pm2/io";
 import DailyRotateFile from "winston-daily-rotate-file";
 import pkg from "winston-mongodb";
 const { MongoDB } = pkg;
+import "winston-syslog";
+import os from "os";
 
+const papertrail = new transports.Syslog({
+  host: 'logs4.papertrailapp.com',
+  port: 16512,
+  protocol: 'tls4',
+  localhost: os.hostname(),
+  eol: '\n',
+});
 const minuteTransport = new DailyRotateFile({
   filename: "./logs/%DATE%/application-%DATE%.log",
   frequency: "m",
@@ -42,6 +51,7 @@ const logger = createLogger({
     }),
     minuteTransport,
     dailyTransport,
+    papertrail,
   ],
 });
 
