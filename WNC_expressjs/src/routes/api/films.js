@@ -108,8 +108,8 @@ films_router.put(
       info: res.locals.body,
     });
 
-    if (err) {
-      return res.status(500).json({ msg: "Server error!", error: err });
+     if (err) {
+      next(err)
     }
 
     return res.status(200).json(data);

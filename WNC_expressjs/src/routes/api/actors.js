@@ -36,10 +36,8 @@ const ActorPatchSchema = z
   );
 
 const ActorPutSchema = z.object({
-
   last_name: z.string(),
   first_name: z.string(),
-
 });
 
 const ActorCreateSchema = z.object({
@@ -129,7 +127,7 @@ actors_router.put("/:id", async function (req, res) {
   const [data, err] = await CallAndCatchAsync(UpdateAnActor, { id, info });
 
   if (err) {
-    return res.status(500).json({ msg: "Server error!", error: err });
+    next(err);
   }
 
   return res.status(200).json(data);
@@ -167,7 +165,9 @@ actors_router.delete("/:id", async function (req, res, next) {
   const [data, err] = await CallAndCatchAsync(DeleteAnActor, { id });
 
   if (err) {
-    next(err)
+
+    next(err);
+
   }
 
   return res.status(200).json(data);
@@ -176,5 +176,7 @@ actors_router.delete("/:id", async function (req, res, next) {
 export default actors_router;
 
 
+
 export { ActorCreateSchema, ActorPutSchema, ActorPatchSchema };
+
 
