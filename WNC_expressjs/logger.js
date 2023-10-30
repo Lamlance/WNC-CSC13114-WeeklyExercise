@@ -35,7 +35,7 @@ const logger = createLogger({
       maxFiles: "14d",
     }),
     new MongoDB({
-      db: "mongodb+srv://test:test@cluster0.nrip29m.mongodb.net/",
+      db: "mongodb+srv://", // mongodb uri
       level: "info",
       collection: "logs",
       options: { useUnifiedTopology: true },
