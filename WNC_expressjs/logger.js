@@ -1,7 +1,8 @@
 import { createLogger, format, transports } from "winston";
 import { default as pm2_io } from "@pm2/io";
 import DailyRotateFile from "winston-daily-rotate-file";
-
+import pkg from "winston-mongodb";
+const { MongoDB } = pkg;
 
 const minuteTransport = new DailyRotateFile({
   filename: "./logs/%DATE%/application-%DATE%.log",
@@ -14,7 +15,6 @@ const dailyTransport = new DailyRotateFile({
   frequency: "d",
   datePattern: "YYYY-MM-DD",
 });
-
 
 const logger = createLogger({
   level: "debug",
@@ -33,10 +33,18 @@ const logger = createLogger({
       maxSize: "2m",
       maxFiles: "14d",
     }),
-
+    new MongoDB({
+      db: "",
+      level: "info",
+      collection: "logs",
+      format: format.combine(
+        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        format.json()
+      ),
+      options: { useUnifiedTopology: true },
+    }),
     minuteTransport,
     dailyTransport,
-
   ],
 });
 
