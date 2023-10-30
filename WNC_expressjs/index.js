@@ -37,6 +37,7 @@ app.use(function send_server_error(err, req, res, next) {
 app.listen(PORT, (err) => {
   if (!err) {
     console.log(`Server running http://localhost:${PORT}`);
+    WinstonLogger.info(`Server running http://localhost:${PORT}`);
   } else {
     console.log("Error: ", err);
   }
