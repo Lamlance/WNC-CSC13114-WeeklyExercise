@@ -1,0 +1,19 @@
+{
+  "name": "wnc-csc13114-weeklyexercise",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ecosystem.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lamlance/WNC-CSC13114-WeeklyExercise.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lamlance/WNC-CSC13114-WeeklyExercise/issues"
+  },
+  "homepage": "https://github.com/Lamlance/WNC-CSC13114-WeeklyExercise#readme"
+}
