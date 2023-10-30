@@ -42,7 +42,7 @@ class RabbitMQLogger extends Transport {
         Buffer.from(JSON.stringify(info))
       );
     } else if (typeof info === "string") {
-      ch.sendToQueue("log-messages", Buffer.from(info));
+      this.rabbitmq_channel.sendToQueue("log-messages", Buffer.from(info));
     }
     callback();
   }
