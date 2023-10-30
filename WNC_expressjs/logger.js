@@ -34,7 +34,7 @@ const logger = createLogger({
       maxFiles: "14d",
     }),
     new MongoDB({
-      db: "",
+      db: "", // mongodb://mongodb-uri
       level: "info",
       collection: "logs",
       format: format.combine(
