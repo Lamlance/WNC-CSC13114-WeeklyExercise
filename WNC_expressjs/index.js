@@ -3,9 +3,17 @@ import actors_router from "./src/routes/api/actors.js";
 import films_router from "./src/routes/api/films.js";
 import apidoc_routes from "./src/routes/api_docs.js";
 import { WinstonLogger } from "./logger.js";
-
+import { z, ZodError } from "zod";
 const app = express();
 const PORT = 3085;
+
+const ErrorSchema = z.object({
+  message: z.string(),
+  name: z.string(),
+  stack: z.string().optional(),
+  code: z.string().optional(),
+  errno: z.number().optional(),
+});
 
 app.use(express.json());
 app.use("/api-docs", apidoc_routes);
@@ -21,17 +29,33 @@ app.use("/api/actors/", actors_router);
 
 app.use("/api/films/", films_router);
 
-/**
- * @function send_server_error
- * @param {Error} err
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction}
- */
-app.use(function send_server_error(err, req, res, next) {
-  //console.error(err);
+app.use(
+  /**
+   * @param {ZodError} err
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction}
+   */
+  function (err, req, res, next) {
+    const err_data = ErrorSchema.safeParse(err);
+    if (err_data.success) {
+      WinstonLogger.error(err_data.data);
+    }
+    //console.error(err);
+    return res.status(500).json({ error: "Server error" });
+  }
+);
+
+app.use("/example/err", function (req, res) {
+  const err = {
+    message: "example error message",
+    name: "error by example api",
+    stack: "Something happend\n at abc\n at cdf",
+    code: "ERREXAMPLE",
+    errno: 0,
+  };
   WinstonLogger.error(err);
-  return res.status(500).json({ error: "Server error" });
+  return res.status(200).json(err);
 });
 
 app.listen(PORT, (err) => {
