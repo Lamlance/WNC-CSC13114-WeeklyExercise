@@ -26,20 +26,13 @@ services:
     depends_on:
       - mongo
       - elasticsearch
-      - rabbitmq
     ports:
       - 9000:9000 #Greylog UI/REST
-      - 1514:1514 #Syslog
-      - 1514:1514/udp #Syslog
-      - 12201:12201 #GLEF
-      - 12201:12201/udp #GELF
-  rabbitmq:
-    image: rabbitmq:3.12.7-management-alpine
-    networks:
-      - graylog
-    ports:
-      - 8672:5672
-      - 8572:15672
+      # - 1514:1514 #Syslog
+      # - 1514:1514/udp #Syslog
+      # - 12201:12201 #GLEF
+      # - 12201:12201/udp #GELF
+      - 4030:3030 #Nodejs error
 
 networks:
   graylog:
