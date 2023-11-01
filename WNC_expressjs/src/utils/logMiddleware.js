@@ -1,36 +1,35 @@
 import { WinstonLogger } from "../../logger.js";
 
-const logMiddleware = (req, res, next) => {
-  const logObject = {
-    method: req.method,
-    url: req.originalUrl,
-    query: req.query,
-    body: req.body,
-    headers: req.headers,
-    timestamp: new Date().toISOString(),
-  };
-
-  //request details 
-  WinstonLogger.debug(`Request Debug: ${JSON.stringify(logObject)}`);
-  WinstonLogger.info(`Request Info: ${JSON.stringify(logObject)}`);
-  WinstonLogger.warn(`Request Warning: ${JSON.stringify(logObject)}`);
-  WinstonLogger.error(`Request Error: ${JSON.stringify(logObject)}`);
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next
+ */
+function logMiddleware(req, res, next) {
+  //request details
+  //WinstonLogger.info(`Request Info: ${JSON.stringify(logObject)}`);
 
   const oldSend = res.send;
   res.send = function (data) {
-    logObject.response = data;
-    logObject.statusCode = res.statusCode;
+    const logObject = {
+      method: req.method,
+      url: req.originalUrl,
+      request_body: req.body,
+      request_header: req.headers,
+      response_header: res.getHeaders(),
+      status_code: res.statusCode,
+    };
 
-    // Log the response details 
-    WinstonLogger.debug(`Response Debug: ${JSON.stringify(logObject)}`);
-    WinstonLogger.info(`Response Info: ${JSON.stringify(logObject)}`);
-    WinstonLogger.warn(`Response Warning: ${JSON.stringify(logObject)}`);
-    WinstonLogger.error(`Response Error: ${JSON.stringify(logObject)}`);
-
+    if (!res.locals.error) {
+      WinstonLogger.info(logObject);
+    } else {
+      logObject.error = res.locals.error;
+      WinstonLogger.error(logObject);
+    }
     oldSend.apply(res, arguments);
   };
 
   next();
-};
+}
 
 export default logMiddleware;

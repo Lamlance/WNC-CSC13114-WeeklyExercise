@@ -2,21 +2,33 @@ import { createLogger, format, transports } from "winston";
 import UDPSocketLogger from "./src/logger/UDPSocketLogger.js";
 import DailyRotateFile from "winston-daily-rotate-file";
 import pkg from "winston-mongodb";
-import "winston-syslog";
+import { Syslog as WinstonSyslog } from "winston-syslog";
+
 import os from "os";
 const { MongoDB } = pkg;
-
-const papertrail = new transports.Syslog({
-  host: 'logs4.papertrailapp.com',
-  port: 16512,
-  protocol: 'tls4',
+/**
+ * const levels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  http: 3,
+  verbose: 4,
+  debug: 5,
+  silly: 6
+  };
+*/
+const papertrail = new WinstonSyslog({
+  host: "logs.papertrailapp.com",
+  port: 29212,
+  protocol: "tls4",
   localhost: os.hostname(),
-  eol: '\n',
+  eol: "\n",
 });
+
 const minuteTransport = new DailyRotateFile({
   filename: "./logs/%DATE%/application-%DATE%.log",
-  frequency: "m",
-  datePattern: "YYYY-MM-DD-HH-mm",
+  frequency: "1m",
+  datePattern: "YYYY-MM-DD-HHmm",
 });
 
 const dailyTransport = new DailyRotateFile({
@@ -25,37 +37,40 @@ const dailyTransport = new DailyRotateFile({
   datePattern: "YYYY-MM-DD",
 });
 
+const sizeTransport = new DailyRotateFile({
+  filename: "./logs/%DATE%/application-%DATE%.log",
+  datePattern: "YYYY-MM-DD",
+  maxSize: "2k",
+  maxFiles: 4,
+});
+
+const mongoTrasport = new MongoDB({
+  db: "mongodb://root:root@localhost:7017/?authMechanism=DEFAULT", // mongodb uri
+  level: "info",
+  collection: "logs",
+  options: { useUnifiedTopology: true },
+  format: format.json(),
+});
+
 const logger = createLogger({
-  level: "debug",
   format: format.combine(
     format(function (info, opts) {
-      info.create_date = new Date().toUTCString();
+      info["@timestamp"] = new Date().toISOString();
       return info;
     })(),
-    format.json(),
-    format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-    format.metadata()
+    format.json({})
+    // format.metadata()
   ),
   transports: [
     //new transports.Console({ consoleWarnLevels: ["error"], level: "error" }),
     new UDPSocketLogger(),
-    // new RabbitMQLogger({ level: "error" }),
     new transports.File({ filename: "./logs/combined.log" }),
-    new DailyRotateFile({
-      filename: "./logs/%DATE%/application-%DATE%.log",
-      datePattern: "YYYY-MM-DD",
-      zippedArchive: true,
-      maxSize: "2m",
-      maxFiles: "14d",
-    }),
-    new MongoDB({
-      db: "mongodb+srv://", // mongodb uri
-      level: "info",
-      collection: "logs",
-      options: { useUnifiedTopology: true },
-    }),
+    new transports.File({ filename: "./logs/info.log" }),
+    new transports.File({ filename: "./logs/error.log", level: "error" }),
+    mongoTrasport,
+    sizeTransport,
     minuteTransport,
-    dailyTransport,
+    //dailyTransport,
     papertrail,
   ],
 });

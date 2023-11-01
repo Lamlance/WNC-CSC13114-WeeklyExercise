@@ -4,6 +4,7 @@ import films_router from "./src/routes/api/films.js";
 import apidoc_routes from "./src/routes/api_docs.js";
 import { WinstonLogger } from "./logger.js";
 import { z, ZodError } from "zod";
+import logMiddleware from "./src/utils/logMiddleware.js";
 const app = express();
 const PORT = 3085;
 
@@ -16,6 +17,7 @@ const ErrorSchema = z.object({
 });
 
 app.use(express.json());
+
 app.use("/api-docs", apidoc_routes);
 
 app.get("/", (req, res) => {
@@ -25,13 +27,13 @@ app.get("/", (req, res) => {
 });
 
 // routes
-app.use("/api/actors/", actors_router);
+app.use("/api/actors/", logMiddleware, actors_router);
 
-app.use("/api/films/", films_router);
+app.use("/api/films/", logMiddleware, films_router);
 
 app.use(
   /**
-   * @param {ZodError} err
+   * @param {Error} err
    * @param {import("express").Request} req
    * @param {import("express").Response} res
    * @param {import("express").NextFunction}
@@ -39,7 +41,11 @@ app.use(
   function (err, req, res, next) {
     const err_data = ErrorSchema.safeParse(err);
     if (err_data.success) {
-      WinstonLogger.error(err_data.data);
+      res.locals.error = err_data.data;
+      //WinstonLogger.error(err_data.data);
+    } else {
+      res.locals.error = err;
+      //WinstonLogger.error(err);
     }
     //console.error(err);
     return res.status(500).json({ error: "Server error" });
@@ -61,7 +67,7 @@ app.use("/example/err", function (req, res) {
 app.listen(PORT, (err) => {
   if (!err) {
     console.log(`Server running http://localhost:${PORT}`);
-    WinstonLogger.info(`Server running http://localhost:${PORT}`);
+    //WinstonLogger.info(`Server running http://localhost:${PORT}`);
   } else {
     console.log("Error: ", err);
   }
