@@ -70,7 +70,7 @@ films_router.post(
     };
     console.log(film);
     if (creationErr) {
-      return res.status(500).json({ msg: "Server error", error: creationErr });
+      return next(creationErr);
     }
     return res.status(201).json(film);
   }
@@ -83,9 +83,7 @@ films_router.get(
     const [data, err] = await CallAndCatchAsync(GetFilmById, res.locals.params);
 
     if (err != null) {
-      return res
-        .status(500)
-        .json({ error: "Something went wrong!", error: err });
+      return next(err);
     }
 
     if (!data) {
@@ -125,7 +123,7 @@ films_router.patch(
     });
 
     if (err) {
-      return res.status(500).json({ msg: "Server error!", error: err });
+      return next(err);
     }
 
     return res.status(200).json(data);

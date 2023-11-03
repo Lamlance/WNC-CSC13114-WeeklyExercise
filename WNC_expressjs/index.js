@@ -52,18 +52,6 @@ app.use(
   }
 );
 
-app.use("/example/err", function (req, res) {
-  const err = {
-    message: "example error message",
-    name: "error by example api",
-    stack: "Something happend\n at abc\n at cdf",
-    code: "ERREXAMPLE",
-    errno: 0,
-  };
-  WinstonLogger.error(err);
-  return res.status(200).json(err);
-});
-
 app.listen(PORT, (err) => {
   if (!err) {
     console.log(`Server running http://localhost:${PORT}`);

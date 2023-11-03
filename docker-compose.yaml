@@ -28,11 +28,12 @@ services:
       - elasticsearch
     ports:
       - 9000:9000 #Greylog UI/REST
-      # - 1514:1514 #Syslog
-      # - 1514:1514/udp #Syslog
+      - 1514:1514 #Syslog
+      - 1514:1514/udp #Syslog
       # - 12201:12201 #GLEF
       # - 12201:12201/udp #GELF
-      - 4030:3030 #Nodejs error
+      - 4030:3030/udp
+      - 4030:3030
 
 networks:
   graylog:

@@ -1,4 +1,5 @@
 import { WinstonLogger } from "../../logger.js";
+import { flattenJSON } from "./utils.js";
 
 /**
  * @param {import("express").Request} req
@@ -14,9 +15,6 @@ function logMiddleware(req, res, next) {
     const logObject = {
       method: req.method,
       url: req.originalUrl,
-      request_body: req.body,
-      request_header: req.headers,
-      response_header: res.getHeaders(),
       status_code: res.statusCode,
     };
 

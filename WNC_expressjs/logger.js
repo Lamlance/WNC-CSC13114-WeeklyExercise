@@ -17,62 +17,55 @@ const { MongoDB } = pkg;
   silly: 6
   };
 */
-const papertrail = new WinstonSyslog({
-  host: "logs.papertrailapp.com",
-  port: 29212,
-  protocol: "tls4",
-  localhost: os.hostname(),
-  eol: "\n",
-});
+// const papertrail = new WinstonSyslog({
+//   host: "logs.papertrailapp.com",
+//   port: 29212,
+//   protocol: "tls4",
+//   localhost: os.hostname(),
+//   eol: "\n",
+//   format: format.json(),
+// });
 
-const minuteTransport = new DailyRotateFile({
-  filename: "./logs/%DATE%/application-%DATE%.log",
-  frequency: "1m",
-  datePattern: "YYYY-MM-DD-HHmm",
-});
+// const minuteTransport = new DailyRotateFile({
+//   filename: "./logs/%DATE%/application-%DATE%.log",
+//   frequency: "1m",
+//   datePattern: "YYYY-MM-DD-HHmm",
+// });
 
-const dailyTransport = new DailyRotateFile({
-  filename: "./logs/%DATE%/application-%DATE%.log",
-  frequency: "d",
-  datePattern: "YYYY-MM-DD",
-});
+// const dailyTransport = new DailyRotateFile({
+//   filename: "./logs/%DATE%/application-%DATE%.log",
+//   frequency: "d",
+//   datePattern: "YYYY-MM-DD",
+// });
 
-const sizeTransport = new DailyRotateFile({
-  filename: "./logs/%DATE%/application-%DATE%.log",
-  datePattern: "YYYY-MM-DD",
-  maxSize: "2k",
-  maxFiles: 4,
-});
+// const sizeTransport = new DailyRotateFile({
+//   filename: "./logs/%DATE%/application-%DATE%.log",
+//   datePattern: "YYYY-MM-DD",
+//   maxSize: "2k",
+//   maxFiles: 4,
+// });
 
-const mongoTrasport = new MongoDB({
-  db: "mongodb://root:root@localhost:7017/?authMechanism=DEFAULT", // mongodb uri
-  level: "info",
-  collection: "logs",
-  options: { useUnifiedTopology: true },
-  format: format.json(),
-});
-
+// const mongoTrasport = new MongoDB({
+//   db: "mongodb://root:root@localhost:7017/?authMechanism=DEFAULT", // mongodb uri
+//   level: "info",
+//   collection: "logs",
+//   options: { useUnifiedTopology: true },
+//   format: format.json(),
+// });
 const logger = createLogger({
-  format: format.combine(
-    format(function (info, opts) {
-      info["@timestamp"] = new Date().toISOString();
-      return info;
-    })(),
-    format.json({})
-    // format.metadata()
-  ),
+  format: format.combine(format.json()),
   transports: [
-    //new transports.Console({ consoleWarnLevels: ["error"], level: "error" }),
-    new UDPSocketLogger(),
-    new transports.File({ filename: "./logs/combined.log" }),
-    new transports.File({ filename: "./logs/info.log" }),
-    new transports.File({ filename: "./logs/error.log", level: "error" }),
-    mongoTrasport,
-    sizeTransport,
-    minuteTransport,
-    //dailyTransport,
-    papertrail,
+    new transports.Console(),
+    // new UDPSocketLogger({ level: "error" }, 4030),
+    // new UDPSocketLogger({ level: "info" }, 4030),
+    // new transports.File({ filename: "./logs/combined.log" }),
+    // new transports.File({ filename: "./logs/info.log", level: "info" }),
+    // new transports.File({ filename: "./logs/error.log", level: "error" }),
+    // mongoTrasport,
+    // sizeTransport,
+    // minuteTransport,
+    // dailyTransport,
+    // papertrail,
   ],
 });
-
 export { logger as WinstonLogger };
