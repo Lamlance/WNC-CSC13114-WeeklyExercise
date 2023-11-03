@@ -42,7 +42,6 @@ login_router.post(
       user_id: 1,
     };
     const access_token = create_acess_token(header, pay_load);
-    console.log(access_token);
     return res.status(200).json({
       access_token: access_token,
     });
