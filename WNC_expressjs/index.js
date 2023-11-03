@@ -5,6 +5,9 @@ import apidoc_routes from "./src/routes/api_docs.js";
 import { WinstonLogger } from "./logger.js";
 import { z, ZodError } from "zod";
 import logMiddleware from "./src/utils/logMiddleware.js";
+import "dotenv/config";
+import login_router from "./src/routes/login.js";
+
 const app = express();
 const PORT = 3085;
 
@@ -25,6 +28,8 @@ app.get("/", (req, res) => {
     Hello: "World",
   });
 });
+
+app.use("/auth", login_router);
 
 // routes
 app.use("/api/actors/", logMiddleware, actors_router);
@@ -48,7 +53,9 @@ app.use(
       //WinstonLogger.error(err);
     }
     //console.error(err);
-    return res.status(500).json({ error: "Server error" });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err_data.data });
   }
 );
 
