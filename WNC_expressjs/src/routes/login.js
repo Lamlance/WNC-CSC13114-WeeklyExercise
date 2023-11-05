@@ -76,6 +76,10 @@ function validate_jwt_wo_lib_mw(req, res, next) {
   }
   return next();
 }
+login_router.use("/ui", express.static("./src/site"));
+login_router.get("/ui", function (req, res) {
+  return res.redirect("/auth/ui/login.html");
+});
 
 login_router.use("/", validate_jwt_wo_lib_mw, function (req, res) {
   return res.status(200).json({ verified: true });
