@@ -30,7 +30,7 @@
       <!-- Submit button -->
       <div class="d-flex justify-content-between">
         <button type="button" class="btn btn-primary btn-block">Sign in</button>
-        <a href="#"> Return to sign in </a>
+        <a href="http://localhost:3085/auth/ui/signin.html"> Return to sign in </a>
       </div>
     </form>
     <div class="message-box">
@@ -41,7 +41,7 @@
     const serverURL = "http://localhost:3085";
 
     const register = async (username, password) => {
-      const messageText = document.querySelector("message-text");
+      const messageText = document.querySelector(".message-text");
 
       const res = await fetch(`${serverURL}/auth/login`, {
         method: "POST",
@@ -57,7 +57,7 @@
       if (data) {
         window.location.replace(`${serverURL}/auth/ui/login.html`);
       } else {
-        messageText.textContent = "Register failed!";
+        messageText.innerText = "Register failed!";
       }
     };
 

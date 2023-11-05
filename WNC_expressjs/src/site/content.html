@@ -14,38 +14,40 @@
   </head>
   <body>
     <div class="container">
-      <p class="text-welcome fs-3 fw-bold text-center"></p>
+      <p class="text-welcome fs-3 fw-bold text-center"> Hello</p>
     </div>
   </body>
   <script>
     const serverURL = "http://localhost:3085";
 
     window.onload = () => {
+      const textWelcome = document.querySelector(".text-welcome");
       const accessToken = localStorage.getItem("accessToken");
 
       if (!accessToken) {
-        textWelcome.textContent = "You haven't logged in!";
+        textWelcome.innerText = "You haven't logged in!";
       }
+
+      validateAccessToken(accessToken);
     };
 
     const validateAccessToken = async (accessToken) => {
-      const textWelcome = document.querySelector("text-welcome");
+      const textWelcome = document.querySelector(".text-welcome");
 
       const res = await fetch(`${serverURL}/auth`, {
-        method: "POST",
-        body: JSON.stringify(accessToken),
         headers: {
           "content-type": "application/json",
+          "authorization": accessToken,
         },
       });
-      const data = res.body.json();
+      const data = await res.json();
       console.log(data);
 
       // TODO: Compare with response body
-      if (data) {
-        textWelcome.textContent = "Invalid access token!";
+      if (data.verified) {
+        textWelcome.innerText = "Welcome to our website!";
       }
-      textWelcome.textContent = "Welcome to our website!";
+      else textWelcome.innerText = "Invalid access token!";
     };
   </script>
 </html>

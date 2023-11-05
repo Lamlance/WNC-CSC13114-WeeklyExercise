@@ -58,7 +58,7 @@ login_router.post(
  */
 function validate_jwt_wo_lib_mw(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = authHeader || authHeader.split(" ")[0];
   if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
