@@ -2,6 +2,9 @@ import express from "express";
 import { z } from "zod";
 import { validation_mw_builder_body } from "../utils/ValidationMiddlewareBuilder.js";
 import { createHmac } from "crypto";
+
+import jwt from "jsonwebtoken";
+
 const login_router = express.Router();
 
 const UserSchema = z.object({
@@ -76,6 +79,40 @@ function validate_jwt_wo_lib_mw(req, res, next) {
   }
   return next();
 }
+
+
+// json web token
+const generateAccessToken = (payload) => {
+  const accessToken = jwt.sign(
+    {
+      ...payload,
+    },
+    process.env.SECRETE_KEY,
+    { expiresIn: "300s" }
+  );
+
+  return accessToken;
+};
+
+login_router.post(
+  "/lib/login",
+  validation_mw_builder_body(UserSchema),
+  function (req, res, next) {
+    /** @type {{user_name:string,pwd:string}} */
+    const { user_name, pwd } = res.locals.body;
+
+    const pay_load = {
+      user_id: 1,
+    };
+    const access_token = generateAccessToken({
+      user_id: pay_load.user_id,
+    });
+    return res.status(200).json({
+      access_token: access_token,
+    });
+  }
+);
+
 
 login_router.use("/", validate_jwt_wo_lib_mw, function (req, res) {
   return res.status(200).json({ verified: true });
