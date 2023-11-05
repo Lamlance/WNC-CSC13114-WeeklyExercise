@@ -30,7 +30,7 @@
       <!-- Submit button -->
       <div class="d-flex justify-content-between align-content-center">
         <button type="button" class="btn btn-primary btn-block">Sign in</button>
-        <a href="#" class="text-center"> Register new account </a>
+        <a href="" class="text-center"> Register new account </a>
       </div>
     </form>
   </body>
@@ -45,20 +45,18 @@
           "content-type": "application/json",
         },
       });
-      console.log(await res.json());
-      // const data = res.body;
-      // console.log(data);
-    };
-
-    const validateAccessToken = async (accessToken) => {
-      const res = await fetch(`${serverURL}/auth`, {
-        method: "POST",
-        body: JSON.stringify(accessToken),
-        mode: "no-cors",
-      });
-      console.log(res);
-      const data = res.body;
+      const data = await res.json();
       console.log(data);
+
+      const accessToken = data.access_token;
+
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+        console.log("Success get access token!");
+        window.location.replace(`${serverURL}/auth/ui/content.html`);
+      } else {
+        console.log("Fail to get access token!");
+      }
     };
 
     window.onload = () => {
@@ -69,7 +67,6 @@
         const password = document.querySelector("#password").value;
 
         login(username, password);
-        // alert("Username: " + username + "\nPassword: " + password);
       });
     };
   </script>

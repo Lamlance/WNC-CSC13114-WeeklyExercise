@@ -33,8 +33,34 @@
         <a href="#"> Return to sign in </a>
       </div>
     </form>
+    <div class="message-box">
+      <p class="message-text text-danger"></p>
+    </div>
   </body>
   <script>
+    const serverURL = "http://localhost:3085";
+
+    const register = async (username, password) => {
+      const messageText = document.querySelector("message-text");
+
+      const res = await fetch(`${serverURL}/auth/login`, {
+        method: "POST",
+        body: JSON.stringify({ user_name: username, pwd: password }),
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log(data);
+
+      // TODO: Compare with response body
+      if (data) {
+        window.location.replace(`${serverURL}/auth/ui/login.html`);
+      } else {
+        messageText.textContent = "Register failed!";
+      }
+    };
+
     window.onload = () => {
       const signInButton = document.querySelector("button");
 
@@ -42,8 +68,7 @@
         const username = document.querySelector("#username").value;
         const password = document.querySelector("#password").value;
 
-
-        alert("Username: " + username + "\nPassword: " + password);
+        register(username, password);
       });
     };
   </script>
