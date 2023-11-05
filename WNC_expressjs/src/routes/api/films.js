@@ -14,10 +14,8 @@ import {
   validation_mw_builder_params,
   validation_mw_builder_queries,
 } from "../../utils/ValidationMiddlewareBuilder.js";
-import logMiddleware from "../../utils/logMiddleware.js";
 
 const films_router = express.Router();
-films_router.use(logMiddleware);
 
 const FilmGetSchema = z.object({
   take: z.coerce.number().default(10),
@@ -72,7 +70,7 @@ films_router.post(
     };
     console.log(film);
     if (creationErr) {
-      return res.status(500).json({ msg: "Server error", error: creationErr });
+      return next(creationErr);
     }
     return res.status(201).json(film);
   }
@@ -85,9 +83,7 @@ films_router.get(
     const [data, err] = await CallAndCatchAsync(GetFilmById, res.locals.params);
 
     if (err != null) {
-      return res
-        .status(500)
-        .json({ error: "Something went wrong!", error: err });
+      return next(err);
     }
 
     if (!data) {
@@ -108,8 +104,8 @@ films_router.put(
       info: res.locals.body,
     });
 
-     if (err) {
-      next(err)
+    if (err) {
+      next(err);
     }
 
     return res.status(200).json(data);
@@ -127,7 +123,7 @@ films_router.patch(
     });
 
     if (err) {
-      return res.status(500).json({ msg: "Server error!", error: err });
+      return next(err);
     }
 
     return res.status(200).json(data);
@@ -143,7 +139,7 @@ films_router.delete(
     });
 
     if (err) {
-      next(err)
+      next(err);
     }
 
     return res.status(200).json(data);

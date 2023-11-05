@@ -1,0 +1,40 @@
+version: "2"
+services:
+  mongo:
+    image: mongo:5.0.22-focal
+    networks:
+      - graylog
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Dlog4j2.formatMsgNoLookups=true -Xms512m -Xmx512m"
+    networks:
+      - graylog
+  graylog:
+    image: graylog/graylog:5.0
+    environment:
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      #password: nghoanglam123456
+      - GRAYLOG_ROOT_PASSWORD_SHA2=a8be501790281f87b6a100b002a5ba8bf774afdf89499db778df1ed011d9df74
+    entrypoint: /usr/bin/tini -- wait-for-it elasticsearch:9200 --  /docker-entrypoint.sh
+    networks:
+      - graylog
+    restart: always
+    depends_on:
+      - mongo
+      - elasticsearch
+    ports:
+      - 9000:9000 #Greylog UI/REST
+      - 1514:1514 #Syslog
+      - 1514:1514/udp #Syslog
+      # - 12201:12201 #GLEF
+      # - 12201:12201/udp #GELF
+      - 4030:3030/udp
+      - 4030:3030
+
+networks:
+  graylog:
+    driver: bridge
