@@ -2,7 +2,7 @@ import express from "express";
 import { z } from "zod";
 import { validation_mw_builder_body } from "../utils/ValidationMiddlewareBuilder.js";
 import { createHmac } from "crypto";
-
+import { validateToken } from "../middlewares/validateToken.js";
 import jwt from "jsonwebtoken";
 
 const login_router = express.Router();
@@ -80,15 +80,16 @@ function validate_jwt_wo_lib_mw(req, res, next) {
   return next();
 }
 
-
 // json web token
 const generateAccessToken = (payload) => {
+  // authenticate username & password
+
   const accessToken = jwt.sign(
     {
       ...payload,
     },
     process.env.SECRETE_KEY,
-    { expiresIn: "300s" }
+    { expiresIn: "1h" }
   );
 
   return accessToken;
@@ -113,6 +114,9 @@ login_router.post(
   }
 );
 
+login_router.use("/lib", validateToken, function (req, res) {
+  return res.status(200).json({ verified: true });
+});
 
 login_router.use("/", validate_jwt_wo_lib_mw, function (req, res) {
   return res.status(200).json({ verified: true });
