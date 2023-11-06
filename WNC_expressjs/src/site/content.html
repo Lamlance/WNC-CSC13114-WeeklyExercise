@@ -15,14 +15,58 @@
   <body>
     <div class="container">
       <p class="text-welcome fs-3 fw-bold text-center">Hello</p>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="host"> Hostname: </span>
+        <input
+          type="text"
+          class="form-control"
+          id="basic-url-input"
+          aria-describedby="basic-addon3 basic-addon4"
+        />
+        <button class="btn btn-sm btn-primary" id="btn-fetch-api">Fetch</button>
+      </div>
+      <div class="mb-3">
+        <textarea
+          class="form-control"
+          id="api-response-txtarea"
+          rows="3"
+        ></textarea>
+      </div>
     </div>
   </body>
   <script>
     const serverURL = "http://localhost:3085";
 
+    const fetchAPI = async (accessToken) => {
+      const apiInput = document.querySelector("#basic-url-input");
+      const resTxtarea = document.querySelector("#api-response-txtarea");
+      const apiPath = apiInput.value;
+
+      const res = await fetch(`${serverURL}/${apiPath}`, {
+        headers: {
+          "content-type": "application/json",
+          authorization: accessToken,
+        },
+      });
+      const data = await res.json();
+      console.log(data);
+
+      if (data) {
+        resTxtarea.innerText = JSON.stringify(data);
+      } else {
+        resTxtarea.innerText = "Invalid response!"
+      }
+    };
+
     window.onload = () => {
       const textWelcome = document.querySelector(".text-welcome");
+      const btnFetchAPI = document.querySelector("#btn-fetch-api");
       const accessToken = localStorage.getItem("accessToken");
+
+      btnFetchAPI.addEventListener("click", () => {
+        console.log("click");
+        fetchAPI("Bearer" + " " + accessToken)
+      });
 
       if (!accessToken) {
         textWelcome.innerText = "You haven't logged in!";
@@ -32,6 +76,7 @@
     };
 
     const validateAccessToken = async (accessToken) => {
+      const hostName = document.querySelector("#host");
       const textWelcome = document.querySelector(".text-welcome");
 
       const res = await fetch(`${serverURL}/auth`, {
@@ -41,12 +86,13 @@
         },
       });
       const data = await res.json();
-      console.log(data);
 
-      // TODO: Compare with response body
       if (data.verified) {
         textWelcome.innerText = "Welcome to our website!";
-      } else textWelcome.innerText = "Invalid access token!";
+        hostName.innerText = `${serverURL}/`;
+      } else {
+        textWelcome.innerText = "Invalid access token!";
+      }
     };
   </script>
 </html>
