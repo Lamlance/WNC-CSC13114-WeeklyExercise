@@ -45,6 +45,7 @@ login_router.post(
       user_id: 1,
     };
     const access_token = create_acess_token(header, pay_load);
+    console.log(access_token);
     return res.status(200).json({
       access_token: access_token,
     });
@@ -58,7 +59,7 @@ login_router.post(
  */
 function validate_jwt_wo_lib_mw(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[0];
+  const token = authHeader && authHeader.split(" ")[1];
   if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -67,7 +68,6 @@ function validate_jwt_wo_lib_mw(req, res, next) {
   const decode = createHmac("sha256", process.env.SECRETE_KEY)
     .update(header + "." + payload)
     .digest("base64url");
-
   if (decode !== signature) {
     return res.status(401).json({ error: "Invalid JWT" });
   }

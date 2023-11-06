@@ -14,7 +14,7 @@
   </head>
   <body>
     <div class="container">
-      <p class="text-welcome fs-3 fw-bold text-center"> Hello</p>
+      <p class="text-welcome fs-3 fw-bold text-center">Hello</p>
     </div>
   </body>
   <script>
@@ -28,7 +28,7 @@
         textWelcome.innerText = "You haven't logged in!";
       }
 
-      validateAccessToken(accessToken);
+      validateAccessToken("Bearer" + " " + accessToken);
     };
 
     const validateAccessToken = async (accessToken) => {
@@ -37,7 +37,7 @@
       const res = await fetch(`${serverURL}/auth`, {
         headers: {
           "content-type": "application/json",
-          "authorization": accessToken,
+          authorization: accessToken,
         },
       });
       const data = await res.json();
@@ -46,8 +46,7 @@
       // TODO: Compare with response body
       if (data.verified) {
         textWelcome.innerText = "Welcome to our website!";
-      }
-      else textWelcome.innerText = "Invalid access token!";
+      } else textWelcome.innerText = "Invalid access token!";
     };
   </script>
 </html>
