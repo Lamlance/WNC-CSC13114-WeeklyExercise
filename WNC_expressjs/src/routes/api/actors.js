@@ -165,9 +165,7 @@ actors_router.delete("/:id", async function (req, res, next) {
   const [data, err] = await CallAndCatchAsync(DeleteAnActor, { id });
 
   if (err) {
-
     next(err);
-
   }
 
   return res.status(200).json(data);
@@ -175,8 +173,4 @@ actors_router.delete("/:id", async function (req, res, next) {
 
 export default actors_router;
 
-
-
 export { ActorCreateSchema, ActorPutSchema, ActorPatchSchema };
-
-
