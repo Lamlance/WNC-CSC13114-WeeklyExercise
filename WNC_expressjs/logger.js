@@ -6,31 +6,21 @@ import { Syslog as WinstonSyslog } from "winston-syslog";
 
 import os from "os";
 const { MongoDB } = pkg;
-/**
- * const levels = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  http: 3,
-  verbose: 4,
-  debug: 5,
-  silly: 6
-  };
-*/
-// const papertrail = new WinstonSyslog({
-//   host: "logs.papertrailapp.com",
-//   port: 29212,
-//   protocol: "tls4",
-//   localhost: os.hostname(),
-//   eol: "\n",
-//   format: format.json(),
-// });
+import "winston-syslog";
+import os from "os";
 
-// const minuteTransport = new DailyRotateFile({
-//   filename: "./logs/%DATE%/application-%DATE%.log",
-//   frequency: "1m",
-//   datePattern: "YYYY-MM-DD-HHmm",
-// });
+const papertrail = new transports.Syslog({
+  host: 'logs4.papertrailapp.com',
+  port: 16512,
+  protocol: 'tls4',
+  localhost: os.hostname(),
+  eol: '\n',
+});
+const minuteTransport = new DailyRotateFile({
+  filename: "./logs/%DATE%/application-%DATE%.log",
+  frequency: "m",
+  datePattern: "YYYY-MM-DD-HH-mm",
+});
 
 // const dailyTransport = new DailyRotateFile({
 //   filename: "./logs/%DATE%/application-%DATE%.log",
@@ -55,17 +45,25 @@ const { MongoDB } = pkg;
 const logger = createLogger({
   format: format.combine(format.json()),
   transports: [
-    new transports.Console(),
-    // new UDPSocketLogger({ level: "error" }, 4030),
-    // new UDPSocketLogger({ level: "info" }, 4030),
-    // new transports.File({ filename: "./logs/combined.log" }),
-    // new transports.File({ filename: "./logs/info.log", level: "info" }),
-    // new transports.File({ filename: "./logs/error.log", level: "error" }),
-    // mongoTrasport,
-    // sizeTransport,
-    // minuteTransport,
-    // dailyTransport,
-    // papertrail,
+    new transports.Console({ consoleWarnLevels: ["error"], level: "error" }),
+    new transports.File({ filename: "./logs/error.log", level: "error" }),
+    new transports.File({ filename: "./logs/combined.log" }),
+    new DailyRotateFile({
+      filename: "./logs/%DATE%/application-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      zippedArchive: true,
+      maxSize: "2m",
+      maxFiles: "14d",
+    }),
+    new MongoDB({
+      db: "mongodb+srv://", // mongodb uri
+      level: "info",
+      collection: "logs",
+      options: { useUnifiedTopology: true },
+    }),
+    minuteTransport,
+    dailyTransport,
+    papertrail,
   ],
 });
 export { logger as WinstonLogger };
