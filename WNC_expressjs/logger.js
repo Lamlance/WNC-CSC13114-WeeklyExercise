@@ -4,7 +4,6 @@ import DailyRotateFile from "winston-daily-rotate-file";
 import pkg from "winston-mongodb";
 import { Syslog as WinstonSyslog } from "winston-syslog";
 
-import os from "os";
 const { MongoDB } = pkg;
 import "winston-syslog";
 import os from "os";
