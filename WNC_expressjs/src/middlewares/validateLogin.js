@@ -6,7 +6,7 @@ const validateLogin = async(req, res, next) => {
 
     /** @type {{user_name:string,pwd:string}} */
     const { user_name, pwd } = req.body;
-
+    
     const user = 
         await MysqlClient.from("user").where({ user_name: user_name, pwd: pwd }).first();
     
