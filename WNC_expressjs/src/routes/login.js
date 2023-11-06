@@ -100,6 +100,7 @@ const generateAccessToken = (payload) => {
 login_router.post(
   "/lib/login",
   validation_mw_builder_body(UserSchema),
+  validateLogin,
   function (req, res, next) {
     /** @type {{user_name:string,pwd:string}} */
     const { user_name, pwd } = res.locals.body;
