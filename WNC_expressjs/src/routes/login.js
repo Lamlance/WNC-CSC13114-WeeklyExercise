@@ -3,6 +3,7 @@ import { z } from "zod";
 import { validation_mw_builder_body } from "../utils/ValidationMiddlewareBuilder.js";
 import { createHmac } from "crypto";
 import { validateToken } from "../middlewares/validateToken.js";
+import { validateLogin } from "../middlewares/validateLogin.js";
 import jwt from "jsonwebtoken";
 
 const login_router = express.Router();
@@ -34,6 +35,7 @@ function create_acess_token(header, payload) {
 login_router.post(
   "/login",
   validation_mw_builder_body(UserSchema),
+  validateLogin,
   function (req, res, next) {
     /** @type {{user_name:string,pwd:string}} */
     const { user_name, pwd } = res.locals.body;
