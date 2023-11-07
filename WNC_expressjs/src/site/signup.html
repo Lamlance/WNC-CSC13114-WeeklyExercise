@@ -53,8 +53,7 @@
       const data = await res.json();
       console.log(data);
 
-      // TODO: Compare with response body
-      if (data) {
+      if (data.message) {
         window.location.replace(`${serverURL}/auth/ui/login.html`);
       } else {
         messageText.innerText = "Register failed!";
