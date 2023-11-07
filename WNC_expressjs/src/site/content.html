@@ -54,7 +54,7 @@
       if (data) {
         resTxtarea.innerText = JSON.stringify(data);
       } else {
-        resTxtarea.innerText = "Invalid response!"
+        resTxtarea.innerText = "Invalid response!";
       }
     };
 
@@ -65,7 +65,7 @@
 
       btnFetchAPI.addEventListener("click", () => {
         console.log("click");
-        fetchAPI("Bearer" + " " + accessToken)
+        fetchAPI("Bearer" + " " + accessToken);
       });
 
       if (!accessToken) {
@@ -79,7 +79,7 @@
       const hostName = document.querySelector("#host");
       const textWelcome = document.querySelector(".text-welcome");
 
-      const res = await fetch(`${serverURL}/auth`, {
+      const res = await fetch(`${serverURL}/auth/lib/auth`, {
         headers: {
           "content-type": "application/json",
           authorization: accessToken,
@@ -87,7 +87,19 @@
       });
       const data = await res.json();
 
-      if (data.verified) {
+      const res_nolib = await fetch(`${serverURL}/auth/nolib/auth`, {
+        headers: {
+          "content-type": "application/json",
+          authorization: accessToken,
+        },
+      });
+
+      const data_nolib = await res_nolib.json();
+
+      console.log("lib", data);
+      console.log("nolib", data_nolib);
+
+      if (data.verified && data_nolib.verified) {
         textWelcome.innerText = "Welcome to our website!";
         hostName.innerText = `${serverURL}/`;
       } else {

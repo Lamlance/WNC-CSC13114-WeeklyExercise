@@ -27,10 +27,19 @@
         <input type="password" id="password" class="form-control" />
       </div>
 
+      <div class="form-group row">
+        <p class="text-danger" id="error_text"></p>
+      </div>
+      <div class="form-group row">
+        <p class="text-success" id="success_text"></p>
+      </div>
+
       <!-- Submit button -->
       <div class="d-flex justify-content-between">
-        <button type="button" class="btn btn-primary btn-block">Sign in</button>
-        <a href="http://localhost:3085/auth/ui/signin.html"> Return to sign in </a>
+        <button type="button" class="btn btn-primary btn-block">Sign up</button>
+        <a href="http://localhost:3085/auth/ui/signin.html">
+          Return to sign in
+        </a>
       </div>
     </form>
     <div class="message-box">
@@ -43,7 +52,7 @@
     const register = async (username, password) => {
       const messageText = document.querySelector(".message-text");
 
-      const res = await fetch(`${serverURL}/auth/login`, {
+      const res = await fetch(`${serverURL}/auth/register`, {
         method: "POST",
         body: JSON.stringify({ user_name: username, pwd: password }),
         headers: {
@@ -53,10 +62,16 @@
       const data = await res.json();
       console.log(data);
 
-      if (data.message) {
-        window.location.replace(`${serverURL}/auth/ui/login.html`);
+      if (data.message && res.status >= 200 && res.status <= 299) {
+        document.getElementById("success_text").innerHTML =
+          data.message || "Register success redirect you to login";
+        document.getElementById("error_text").innerHTML = "";
+        setTimeout(() => {
+          window.location.replace(`${serverURL}/auth/ui/login.html`);
+        }, 1000);
       } else {
-        messageText.innerText = "Register failed!";
+        document.getElementById("error_text").innerHTML =
+          data.error || "Register failed!";
       }
     };
 
