@@ -1,9 +1,11 @@
 import express from "express";
 import { z } from "zod";
 import { validation_mw_builder_body } from "../utils/ValidationMiddlewareBuilder.js";
-import { createHmac } from "crypto";
-
+import { createHash, createHmac } from "crypto";
+import { validateToken } from "../middlewares/validateToken.js";
+import { validateLogin } from "../middlewares/validateLogin.js";
 import jwt from "jsonwebtoken";
+import { FindUserByUsername, CreateUser } from "../db/user.js";
 
 const login_router = express.Router();
 
@@ -34,6 +36,7 @@ function create_acess_token(header, payload) {
 login_router.post(
   "/login",
   validation_mw_builder_body(UserSchema),
+  validateLogin,
   function (req, res, next) {
     /** @type {{user_name:string,pwd:string}} */
     const { user_name, pwd } = res.locals.body;
@@ -79,6 +82,7 @@ function validate_jwt_wo_lib_mw(req, res, next) {
   }
   return next();
 }
+
 login_router.use("/ui", express.static("./src/site"));
 login_router.get("/ui", function (req, res) {
   return res.redirect("/auth/ui/login.html");
@@ -86,12 +90,14 @@ login_router.get("/ui", function (req, res) {
 
 // json web token
 const generateAccessToken = (payload) => {
+  // authenticate username & password
+
   const accessToken = jwt.sign(
     {
       ...payload,
     },
     process.env.SECRETE_KEY,
-    { expiresIn: "300s" }
+    { expiresIn: "1h" }
   );
 
   return accessToken;
@@ -100,6 +106,7 @@ const generateAccessToken = (payload) => {
 login_router.post(
   "/lib/login",
   validation_mw_builder_body(UserSchema),
+  validateLogin,
   function (req, res, next) {
     /** @type {{user_name:string,pwd:string}} */
     const { user_name, pwd } = res.locals.body;
@@ -115,6 +122,35 @@ login_router.post(
     });
   }
 );
+
+login_router.post(
+  "/register",
+  validation_mw_builder_body(UserSchema),
+  async function (req, res, next) {
+    const { user_name, pwd } = res.locals.body;
+    const existingUser = await FindUserByUsername(user_name);
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+
+    const hashedPassword = createHash("sha256").update(pwd).digest("base64url");
+
+    const newUserCreated = CreateUser({
+      user_name: user_name,
+      pwd: hashedPassword,
+    });
+
+    if (newUserCreated) {
+      return res.status(201).json({ message: "User registered successfully" });
+    } else {
+      return res.status(500).json({ error: "Failed to register user" });
+    }
+  }
+);
+
+login_router.use("/lib", validateToken, function (req, res) {
+  return res.status(200).json({ verified: true });
+});
 
 login_router.use("/", validate_jwt_wo_lib_mw, function (req, res) {
   return res.status(200).json({ verified: true });
