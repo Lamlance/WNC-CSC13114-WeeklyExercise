@@ -2,7 +2,7 @@ import { MysqlClient } from "../db/connect.js";
 
 async function FindUserByUsername(username) {
   try {
-    const user = await MysqlClient.from("users")
+    const user = await MysqlClient.from("user")
       .where({ user_name: username })
       .first();
     return user;
@@ -14,7 +14,7 @@ async function FindUserByUsername(username) {
 
 async function CreateUser({ user_name, pwd }) {
   try {
-    const insertedUserId = await MysqlClient("users").insert({
+    const insertedUserId = await MysqlClient("user").insert({
       user_name,
       pwd,
     });

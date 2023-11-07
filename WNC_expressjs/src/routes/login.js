@@ -1,7 +1,7 @@
 import express from "express";
 import { z } from "zod";
 import { validation_mw_builder_body } from "../utils/ValidationMiddlewareBuilder.js";
-import { createHmac } from "crypto";
+import { createHash, createHmac } from "crypto";
 import { validateToken } from "../middlewares/validateToken.js";
 import { validateLogin } from "../middlewares/validateLogin.js";
 import jwt from "jsonwebtoken";
@@ -121,17 +121,14 @@ login_router.post(
 login_router.post(
   "/register",
   validation_mw_builder_body(UserSchema),
-  function (req, res, next) {
+  async function (req, res, next) {
     const { user_name, pwd } = res.locals.body;
-    const existingUser = FindUserByUsername(user_name);
-
+    const existingUser = await FindUserByUsername(user_name);
     if (existingUser) {
       return res.status(400).json({ error: "Username already exists" });
     }
 
-    const hashedPassword = createHmac("sha256", process.env.SECRETE_KEY)
-      .update(pwd)
-      .digest("base64url");
+    const hashedPassword = createHash("sha256").update(pwd).digest("base64url");
 
     const newUserCreated = CreateUser({
       user_name: user_name,
