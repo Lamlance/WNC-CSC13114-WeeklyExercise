@@ -23,7 +23,7 @@ const UserSchema = z.object({
  */
 function create_acess_token(header, payload) {
   const curr_time = new Date().getTime();
-  payload["iat"] = curr_time;
+  payload["iat"] = curr_time / 1000;
   //payload["exp"] = (curr_time + 86400000) / 1000; // 1 day;
   payload["exp"] = (curr_time + 3600000) / 1000; // 1 hour;
 
