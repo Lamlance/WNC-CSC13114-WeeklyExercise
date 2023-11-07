@@ -5,6 +5,7 @@ import { createHmac } from "crypto";
 import { validateToken } from "../middlewares/validateToken.js";
 import { validateLogin } from "../middlewares/validateLogin.js";
 import jwt from "jsonwebtoken";
+import { FindUserByUsername, CreateUser } from "../db/user.js";
 
 const login_router = express.Router();
 
@@ -114,6 +115,34 @@ login_router.post(
     return res.status(200).json({
       access_token: access_token,
     });
+  }
+);
+
+login_router.post(
+  "/register",
+  validation_mw_builder_body(UserSchema),
+  function (req, res, next) {
+    const { user_name, pwd } = res.locals.body;
+    const existingUser = FindUserByUsername(user_name);
+
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+
+    const hashedPassword = createHmac("sha256", process.env.SECRETE_KEY)
+      .update(pwd)
+      .digest("base64url");
+
+    const newUserCreated = CreateUser({
+      user_name: user_name,
+      pwd: hashedPassword,
+    });
+
+    if (newUserCreated) {
+      return res.status(201).json({ message: "User registered successfully" });
+    } else {
+      return res.status(500).json({ error: "Failed to register user" });
+    }
   }
 );
 
