@@ -48,6 +48,7 @@ login_router.post(
       user_id: 1,
     };
     const access_token = create_acess_token(header, pay_load);
+    console.log(access_token);
     return res.status(200).json({
       access_token: access_token,
     });
@@ -70,7 +71,6 @@ function validate_jwt_wo_lib_mw(req, res, next) {
   const decode = createHmac("sha256", process.env.SECRETE_KEY)
     .update(header + "." + payload)
     .digest("base64url");
-
   if (decode !== signature) {
     return res.status(401).json({ error: "Invalid JWT" });
   }
@@ -82,6 +82,11 @@ function validate_jwt_wo_lib_mw(req, res, next) {
   }
   return next();
 }
+
+login_router.use("/ui", express.static("./src/site"));
+login_router.get("/ui", function (req, res) {
+  return res.redirect("/auth/ui/login.html");
+});
 
 // json web token
 const generateAccessToken = (payload) => {
@@ -152,3 +157,4 @@ login_router.use("/", validate_jwt_wo_lib_mw, function (req, res) {
 });
 
 export default login_router;
+export { validate_jwt_wo_lib_mw };

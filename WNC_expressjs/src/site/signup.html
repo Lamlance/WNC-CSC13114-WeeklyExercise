@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Authentication with JWT</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <form class="container w-50">
+      <p class="fs-3 fw-bold">Sign Up Form</p>
+      <!-- Email input -->
+      <div class="form-outline mb-3">
+        <label class="form-label" for="username">Username</label>
+        <input type="email" id="username" class="form-control" />
+      </div>
+
+      <!-- Password input -->
+      <div class="form-outline mb-3">
+        <label class="form-label" for="password">Password</label>
+        <input type="password" id="password" class="form-control" />
+      </div>
+
+      <!-- Submit button -->
+      <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-primary btn-block">Sign in</button>
+        <a href="http://localhost:3085/auth/ui/signin.html"> Return to sign in </a>
+      </div>
+    </form>
+    <div class="message-box">
+      <p class="message-text text-danger"></p>
+    </div>
+  </body>
+  <script>
+    const serverURL = "http://localhost:3085";
+
+    const register = async (username, password) => {
+      const messageText = document.querySelector(".message-text");
+
+      const res = await fetch(`${serverURL}/auth/login`, {
+        method: "POST",
+        body: JSON.stringify({ user_name: username, pwd: password }),
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log(data);
+
+      if (data.message) {
+        window.location.replace(`${serverURL}/auth/ui/login.html`);
+      } else {
+        messageText.innerText = "Register failed!";
+      }
+    };
+
+    window.onload = () => {
+      const signInButton = document.querySelector("button");
+
+      signInButton.addEventListener("click", () => {
+        const username = document.querySelector("#username").value;
+        const password = document.querySelector("#password").value;
+
+        register(username, password);
+      });
+    };
+  </script>
+</html>
