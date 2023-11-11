@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
+    "dev_sec": "concurrently --kill-others \"nodemon server/serverA.js\" \"nodemon server/serverB.js\"",
     "start": "node index.js",
     "test": "mocha"
   },
@@ -20,6 +21,7 @@
     "jsonwebtoken": "^9.0.2",
     "knex": "^2.5.1",
     "mysql2": "^3.6.1",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
@@ -32,6 +34,7 @@
     "zod-to-json-schema": "^3.21.4"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "mocha": "^10.2.0",
     "nodemon": "^3.0.1"
   }

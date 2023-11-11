@@ -132,3 +132,4 @@ login_router.use("/nolib/auth", validate_jwt_wo_lib_mw, function (req, res) {
 });
 
 export default login_router;
+export { generateAccessToken, create_acess_token };
