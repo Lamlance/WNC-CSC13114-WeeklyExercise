@@ -8,6 +8,7 @@ const db_connection = knex({
     user: "root",
     password: "12345",
     database: "sakila",
+
   },
 });
 
