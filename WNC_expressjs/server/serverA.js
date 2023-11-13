@@ -2,6 +2,11 @@ import { URL, URLSearchParams } from "url";
 import actors_router from "../src/routes/api/actors.js";
 import express from "express";
 import fetch from "node-fetch";
+import jwt from "jsonwebtoken";
+
+import { FindUserByUsername, CreateUser, FindUser } from "../src/db/user.js";
+import { CreateNewRefreshToken } from "../src/db/user-refresh-token.js";
+
 const app = express();
 const PORT = 3031;
 app.listen(PORT, function () {
@@ -73,6 +78,88 @@ app.use(
   async function (req, res, next) {
     res.locals.token = "Bearer " + (access_token_v2 || "");
     return next();
+  },
+  fetch_films_from_server_B,
+  forward_server_B_data
+);
+
+// V4.3: Client send access token & refresh token every requests
+app.use("/api/v4.3/register", async (req, res) => {
+  const { userName, pwd } = req.body;
+
+  const existingUser = await FindUserByUsername(userName);
+  if (existingUser) {
+    return res.status(400).json({ error: "Username already exists" });
+  }
+  const hashedPassword = createHash("sha256").update(pwd).digest("base64url");
+  const userId = await CreateUser({
+    user_name: userName,
+    pwd: hashedPassword,
+  });
+  if (typeof userId !== TypeError) {
+    return res.status(200).json({ message: "Signed up successfully!" });
+  }
+  return res.status(500).json({ message: "Something is wrong!" });
+});
+
+app.use("/api/v4.3/login", async (req, res) => {
+  const { userName, pwd } = req.body;
+
+  const hashedPassword = createHash("sha256").update(pwd).digest("base64url");
+  const user = await FindUser(userName, hashedPassword);
+
+  if (user) {
+    const refreshToken = jwt.sign(user, process.env.SECRETE_KEY);
+    const accessToken = jwt.sign(user, process.env.SECRETE_KEY, {
+      expiresIn: "2m",
+    });
+    const result = await CreateNewRefreshToken(user.id, refreshToken);
+
+    if (result) {
+      return res
+        .status(200)
+        .json({
+          accessToken,
+          refreshToken,
+          message: "Logged in successfully!",
+        });
+    }
+  }
+  return res.status(400).json({ message: "Invalid user! " });
+});
+
+app.use(
+  "/api/v4.3/films",
+  async (req, res, next) => {
+    const accessToken = req.headers["accessToken"];
+    const refreshToken = req.headers["refreshToken"];
+
+    const authToken = accessToken || accessToken.split(" ")[1];
+    if (!authToken) {
+      return res.status(401).json({ message: "Unauthorized!" });
+    }
+
+    jwt.verify(authToken, process.env.SECRETE_KEY, (err, decoded) => {
+      if (!err) {
+        res.locals.user = decoded;
+        return next();
+      }
+      if (err.name === "TokenExpiredError") {
+        try {
+          const tmp = jwt.verify(refreshToken, process.env.SECRETE_KEY);
+          res.locals.user = decoded;
+          res.locals.newAccessToken = jwt.sign(
+            decoded,
+            process.env.SECRETE_KEY,
+            { expiresIn: "2m" }
+          );
+          return next();
+        } catch (err) {
+          return res.status(400).json({ message: "Invalid refresh token!" });
+        }
+      }
+      return res.status(400).json({ message: "Invalid access token!" });
+    });
   },
   fetch_films_from_server_B,
   forward_server_B_data

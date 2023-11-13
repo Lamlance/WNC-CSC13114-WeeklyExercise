@@ -40,4 +40,3 @@ app.use("/api/v2/film", validateToken, films_router);
 app.listen(PORT, function () {
   console.log(`Server B at http://localhost:${PORT}`);
 });
-``;
