@@ -4,7 +4,6 @@ import { validateToken } from "../src/middlewares/validateToken.js";
 import login_router, { generateAccessToken } from "../src/routes/login.js";
 import "dotenv/config";
 
-
 import { serve } from "swagger-ui-express";
 import crypto from "crypto";
 
@@ -53,7 +52,6 @@ async function check_login_client(req, res, next) {
   return res.status(401).json({ error: "Invalid user name or password" });
 }
 
-
 app.use(express.json());
 
 //V1: Ko co authorization
@@ -83,18 +81,23 @@ function check_secretkey(req, res, next) {
   const authHeader = req.headers["authorization"];
   const secretkey = authHeader && authHeader.split(" ")[1];
 
-  console.log('sever b')
-  console.log(secretkey)
+  console.log("sever b");
+  console.log(secretkey);
   if (!secretkey) {
     return res.status(401).json({ message: "Access denied" });
   }
-  const [ payload64, signature ] = secretkey.split(".")
+  const [payload64, signature] = secretkey.split(".");
   const payload = JSON.parse(Buffer.from(payload64, "base64url"));
-  if (Math.floor((new Date().getTime()) / 1000) > (payload["iat"] + 120) * 1000 ) {
+  if (Math.floor(new Date().getTime() / 1000) > (payload["iat"] + 120) * 1000) {
     return res.status(401).json({ error: "Token expired" });
   }
-  if (signature != crypto.createHmac("sha256", process.env.SECRETE_KEY).update(payload64).digest("base64url")) {
-
+  if (
+    signature !=
+    crypto
+      .createHmac("sha256", process.env.SECRETE_KEY)
+      .update(payload64)
+      .digest("base64url")
+  ) {
     return res.status(401).json({ error: "Invalid signature" });
   }
   next();
@@ -199,9 +202,3 @@ app.use("/api/v4.2/film", validateToken, films_router);
 app.listen(PORT, function () {
   console.log(`Server B at http://localhost:${PORT}`);
 });
-
-app.listen(PORT, function () {
-  console.log(`Server B at http://localhost:${PORT}`);
-});
-
-
