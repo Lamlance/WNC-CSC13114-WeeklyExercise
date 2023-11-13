@@ -2,6 +2,8 @@ import { URL, URLSearchParams } from "url";
 import actors_router from "../src/routes/api/actors.js";
 import express from "express";
 import fetch from "node-fetch";
+import crypto from "crypto"
+import "dotenv/config";
 const app = express();
 const PORT = 3031;
 app.listen(PORT, function () {
@@ -72,6 +74,28 @@ app.use(
   "/api/v2/film",
   async function (req, res, next) {
     res.locals.token = "Bearer " + (access_token_v2 || "");
+    return next();
+  },
+  fetch_films_from_server_B,
+  forward_server_B_data
+);
+
+//V3 Secret key
+/** @type {string | undefined} 
+ * @param {object} header
+ * @param {object} payload
+ */
+app.use("/api/v3/film",
+  async function (req, res, next) {
+    const payload = {
+      iat: Math.floor((new Date().getTime()) / 1000),
+      url: "/api/v3/film",
+    };
+    // console.log(process.env.SECRETE_KEY)    
+    const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString("base64url");
+    const signature = crypto.createHmac("sha256", process.env.SECRETE_KEY).update(payload64).digest("base64url");
+    const secretkey = payload64 + "." + signature;
+    res.locals.token = "Key " + (secretkey || "");
     return next();
   },
   fetch_films_from_server_B,
