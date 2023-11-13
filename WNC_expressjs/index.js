@@ -7,9 +7,14 @@ import { z, ZodError } from "zod";
 import logMiddleware from "./src/utils/logMiddleware.js";
 import "dotenv/config";
 import login_router from "./src/routes/login.js";
-
+import cors from "cors";
+import { validate_jwt_wo_lib_mw } from "./src/middlewares/validateToken.js";
 const app = express();
 const PORT = 3085;
+
+app.options("*", cors());
+app.use(express.json());
+app.use(cors());
 
 const ErrorSchema = z.object({
   message: z.string(),
@@ -18,8 +23,6 @@ const ErrorSchema = z.object({
   code: z.string().optional(),
   errno: z.number().optional(),
 });
-
-app.use(express.json());
 
 app.use("/api-docs", apidoc_routes);
 
@@ -32,9 +35,9 @@ app.get("/", (req, res) => {
 app.use("/auth", login_router);
 
 // routes
-app.use("/api/actors/", logMiddleware, actors_router);
+app.use("/api/actors/", logMiddleware, validate_jwt_wo_lib_mw, actors_router);
 
-app.use("/api/films/", logMiddleware, films_router);
+app.use("/api/films/", logMiddleware, validate_jwt_wo_lib_mw, films_router);
 
 app.use(
   /**
