@@ -8,7 +8,8 @@ const validateLogin = async (req, res, next) => {
   const user = await MysqlClient.from("user")
     .where({ user_name: user_name, pwd: hashed_pwd })
     .first();
-
+  // console.log(req.body)
+  // console.log(user)
   if (user) {
     return next();
   }
