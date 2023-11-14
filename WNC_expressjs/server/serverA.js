@@ -94,20 +94,25 @@ app.use(
 
 //V3 Secret key
 
-
-/** @type {string | undefined} 
+/** @type {string | undefined}
  * @param {object} header
  * @param {object} payload
  */
-app.use("/api/v3/film",
+app.use(
+  "/api/v3/film",
   async function (req, res, next) {
     const payload = {
-      iat: Math.floor((new Date().getTime()) / 1000),
+      iat: Math.floor(new Date().getTime() / 1000),
       url: "/api/v3/film",
     };
-    // console.log(process.env.SECRETE_KEY)    
-    const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString("base64url");
-    const signature = crypto.createHmac("sha256", process.env.SECRETE_KEY).update(payload64).digest("base64url");
+    // console.log(process.env.SECRETE_KEY)
+    const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString(
+      "base64url"
+    );
+    const signature = crypto
+      .createHmac("sha256", process.env.SECRETE_KEY)
+      .update(payload64)
+      .digest("base64url");
     const secretkey = payload64 + "." + signature;
     res.locals.token = "Key " + (secretkey || "");
 
@@ -116,7 +121,6 @@ app.use("/api/v3/film",
   fetch_films_from_server_B,
   forward_server_B_data
 );
-
 
 //V4.2 : Access token and refresh_token
 
@@ -158,12 +162,11 @@ app.use(
       }
     }
     res.locals.token = "Bearer " + (access_token_v42 || "");
-  return next();
+    return next();
   },
   fetch_films_from_server_B,
   forward_server_B_data
 );
-
 
 // V4.3: Client send access token & refresh token every requests
 app.use("/api/v4.3/register", async (req, res) => {
@@ -173,7 +176,10 @@ app.use("/api/v4.3/register", async (req, res) => {
   if (existingUser) {
     return res.status(400).json({ error: "Username already exists" });
   }
-  const hashedPassword = createHash("sha256").update(pwd).digest("base64url");
+  const hashedPassword = crypto
+    .createHmac("sha256", process.env.SECRETE_KEY)
+    .update(pwd)
+    .digest("base64url");
   const userId = await CreateUser({
     user_name: userName,
     pwd: hashedPassword,
@@ -187,24 +193,25 @@ app.use("/api/v4.3/register", async (req, res) => {
 app.use("/api/v4.3/login", async (req, res) => {
   const { userName, pwd } = req.body;
 
-  const hashedPassword = createHash("sha256").update(pwd).digest("base64url");
+  const hashedPassword = crypto
+    .createHmac("sha256", process.env.SECRETE_KEY)
+    .update(pwd)
+    .digest("base64url");
   const user = await FindUser(userName, hashedPassword);
 
   if (user) {
-    const refreshToken = jwt.sign(user, process.env.SECRETE_KEY);
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN);
     const accessToken = jwt.sign(user, process.env.SECRETE_KEY, {
       expiresIn: "2m",
     });
-    const result = await CreateNewRefreshToken(user.id, refreshToken);
+    const result = await CreateNewRefreshToken(user.user_id, refreshToken);
 
     if (result) {
-      return res
-        .status(200)
-        .json({
-          accessToken,
-          refreshToken,
-          message: "Logged in successfully!",
-        });
+      return res.status(200).json({
+        accessToken,
+        refreshToken,
+        message: "Logged in successfully!",
+      });
     }
   }
   return res.status(400).json({ message: "Invalid user! " });
@@ -213,10 +220,11 @@ app.use("/api/v4.3/login", async (req, res) => {
 app.use(
   "/api/v4.3/films",
   async (req, res, next) => {
-    const accessToken = req.headers["accessToken"];
-    const refreshToken = req.headers["refreshToken"];
+    const accessToken = req.headers["accesstoken"];
+    const refreshToken = req.headers["refreshtoken"];
 
-    const authToken = accessToken || accessToken.split(" ")[1];
+    // const authToken = accessToken || accessToken.split(" ")[1];
+    const authToken = accessToken;
     if (!authToken) {
       return res.status(401).json({ message: "Unauthorized!" });
     }
@@ -228,21 +236,31 @@ app.use(
       }
       if (err.name === "TokenExpiredError") {
         try {
-          const tmp = jwt.verify(refreshToken, process.env.SECRETE_KEY);
-          res.locals.user = decoded;
+          const tmp = jwt.verify(refreshToken, process.env.REFRESH_TOKEN);
+          res.locals.user = tmp;
           res.locals.newAccessToken = jwt.sign(
-            decoded,
+            tmp,
             process.env.SECRETE_KEY,
             { expiresIn: "2m" }
           );
           return next();
         } catch (err) {
+          console.log(err)
           return res.status(400).json({ message: "Invalid refresh token!" });
         }
       }
       return res.status(400).json({ message: "Invalid access token!" });
     });
   },
-  fetch_films_from_server_B,
-  forward_server_B_data
+  async (req, res) => {
+    console.log(res.locals);
+    if (res.locals.newAccessToken) {
+      return res
+        .status(200)
+        .json({ accessToken: res.locals.newAccessToken, data: [] });
+    }
+    return res.status(200).json({ data: [] });
+  }
+  // fetch_films_from_server_B,
+  // forward_server_B_data
 );

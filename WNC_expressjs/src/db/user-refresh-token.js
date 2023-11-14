@@ -1,14 +1,14 @@
 import { MysqlClient } from "../db/connect.js";
-import jwt from "jsonwebtoken";
 
 async function CreateNewRefreshToken(userId, refresh_token) {
   try {
     const token = await MysqlClient.from("user_refresh_token")
-      .where({ id: userId })
+      .where({ user_id: userId })
       .first();
+    console.log(token);
     if (token) {
       return MysqlClient.from("user_refresh_token")
-        .where({ id: userId })
+        .where({ user_id: userId })
         .update({ refresh_token });
     } else {
       return MysqlClient.from("user_refresh_token").insert({
