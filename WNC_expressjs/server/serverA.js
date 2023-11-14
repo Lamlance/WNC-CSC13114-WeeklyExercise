@@ -8,8 +8,16 @@ import crypto from "crypto";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 
-import { FindUserByUsername, CreateUser, FindUser } from "../src/db/user.js";
-import { CreateNewRefreshToken } from "../src/db/user-refresh-token.js";
+import {
+  FindUserByUsername,
+  CreateUser,
+  FindUser,
+  FindUserById,
+} from "../src/db/user.js";
+import {
+  CreateNewRefreshToken,
+  FindUserRefreshToken,
+} from "../src/db/user-refresh-token.js";
 
 const app = express();
 const PORT = 3031;
@@ -180,12 +188,21 @@ app.use("/api/v4.3/register", async (req, res) => {
     .createHmac("sha256", process.env.SECRETE_KEY)
     .update(pwd)
     .digest("base64url");
+
   const userId = await CreateUser({
     user_name: userName,
     pwd: hashedPassword,
   });
+
   if (typeof userId !== TypeError) {
-    return res.status(200).json({ message: "Signed up successfully!" });
+    const user = await FindUserById(userId[0]);
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN);
+    const result = await CreateNewRefreshToken(user.user_id, refreshToken);
+    if (result) {
+      return res
+        .status(200)
+        .json({ message: "Signed up successfully!", refreshToken });
+    }
   }
   return res.status(500).json({ message: "Something is wrong!" });
 });
@@ -197,19 +214,20 @@ app.use("/api/v4.3/login", async (req, res) => {
     .createHmac("sha256", process.env.SECRETE_KEY)
     .update(pwd)
     .digest("base64url");
+
   const user = await FindUser(userName, hashedPassword);
 
   if (user) {
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN);
     const accessToken = jwt.sign(user, process.env.SECRETE_KEY, {
       expiresIn: "2m",
     });
-    const result = await CreateNewRefreshToken(user.user_id, refreshToken);
 
-    if (result) {
+    const refreshToken = await FindUserRefreshToken(user.user_id);
+
+    if (refreshToken) {
       return res.status(200).json({
         accessToken,
-        refreshToken,
+        refreshToken: refreshToken.refresh_token,
         message: "Logged in successfully!",
       });
     }
@@ -223,7 +241,6 @@ app.use(
     const accessToken = req.headers["accesstoken"];
     const refreshToken = req.headers["refreshtoken"];
 
-    // const authToken = accessToken || accessToken.split(" ")[1];
     const authToken = accessToken;
     if (!authToken) {
       return res.status(401).json({ message: "Unauthorized!" });
@@ -238,14 +255,12 @@ app.use(
         try {
           const tmp = jwt.verify(refreshToken, process.env.REFRESH_TOKEN);
           res.locals.user = tmp;
-          res.locals.newAccessToken = jwt.sign(
-            tmp,
-            process.env.SECRETE_KEY,
-            { expiresIn: "2m" }
-          );
+          res.locals.newAccessToken = jwt.sign(tmp, process.env.SECRETE_KEY, {
+            expiresIn: "2m",
+          });
           return next();
         } catch (err) {
-          console.log(err)
+          console.log(err);
           return res.status(400).json({ message: "Invalid refresh token!" });
         }
       }

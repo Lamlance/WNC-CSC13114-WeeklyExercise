@@ -16,9 +16,23 @@ async function CreateNewRefreshToken(userId, refresh_token) {
         refresh_token,
       });
     }
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     return null;
   }
 }
 
-export { CreateNewRefreshToken };
+async function FindUserRefreshToken(userId) {
+  try {
+    const token = await MysqlClient.from("user_refresh_token")
+      .where({ user_id: userId })
+      .first();
+
+    return token;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
+export { CreateNewRefreshToken, FindUserRefreshToken };

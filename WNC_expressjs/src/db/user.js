@@ -12,6 +12,18 @@ async function FindUserByUsername(username) {
   }
 }
 
+async function FindUserById(userId) {
+  try {
+    const user = await MysqlClient.from("user")
+      .where({ user_id: userId })
+      .first();
+    return user;
+  } catch (error) {
+    console.error("Error finding user by username:", error);
+    return null;
+  }
+}
+
 async function FindUser(userName, hashedPassword) {
   try {
     const user = await MysqlClient.from("user")
@@ -42,4 +54,4 @@ async function CreateUser({ user_name, pwd }) {
   }
 }
 
-export { FindUserByUsername, FindUser, CreateUser };
+export { FindUserByUsername, FindUserById, FindUser, CreateUser };
