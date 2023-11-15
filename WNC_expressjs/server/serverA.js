@@ -129,8 +129,8 @@ app.use(
   forward_server_B_data
 );
 
-app.use("/api/lam/v4.3", api_router_v4_3);
-app.use("/api/lam/v4.2", api_router_v4_2);
+app.use("/api/v4.3", api_router_v4_3);
+app.use("/api/v4.2", api_router_v4_2);
 
 app.listen(PORT, function () {
   console.log(`Server A at http://localhost:${PORT}`);

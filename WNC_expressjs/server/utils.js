@@ -76,6 +76,10 @@ function refresh_access_token(req, res, next) {
 
 /** @type {express_middleware} */
 async function check_refresh_token(req, res, next) {
+  if (res.locals.access_token_expired === false) {
+    return next();
+  }
+
   const refreshToken =
     req.body["refresh_token"] || req.headers["refresh_token"];
   if (!refreshToken) {

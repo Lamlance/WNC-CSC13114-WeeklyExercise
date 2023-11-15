@@ -26,17 +26,9 @@ app.use("/api/v1/film", films_router);
  * @param {import("express").NextFunction} next
  */
 function check_secretkey(req, res, next) {
-  // const { user_name, pwd } = req.body;
-  // if (user_name === admin_name && pwd === admin_pwd) {
-  //   return next();
-  // }
-  // return res.status(401).json({ error: "Wrong " });
-
   const authHeader = req.headers["authorization"];
   const secretkey = authHeader && authHeader.split(" ")[1];
 
-  console.log("sever b");
-  console.log(secretkey);
   if (!secretkey) {
     return res.status(401).json({ message: "Access denied" });
   }
@@ -62,10 +54,10 @@ function check_secretkey(req, res, next) {
   }
   next();
 }
-
+app.use("/api/v2/film", films_router);
 app.use("/api/v3/film", check_secretkey, films_router);
-app.use("/api/lam/v4.2/film", check_secretkey, films_router);
-app.use("/api/lam/v4.3/film", check_secretkey, films_router);
+app.use("/api/v4.2/film", check_secretkey, films_router);
+app.use("/api/v4.3/film", check_secretkey, films_router);
 
 app.listen(PORT, function () {
   console.log(`Server B at http://localhost:${PORT}`);
