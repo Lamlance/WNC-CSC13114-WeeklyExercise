@@ -65,44 +65,45 @@ async function forward_server_B_data(req, res) {
   }
 }
 
-/**
- * @returns {express_middleware}
- */
-function check_refresh_token_mw_builder(token) {
-  /** @type {express_middleware} */
-  return async function (req, res, next) {
-    const refreshToken = token;
-    if (!refreshToken) {
-      return res.status(401).json({ error: "Missing refresh token" });
+/** @type {express_middleware} */
+
+function refresh_access_token(req, res, next) {
+  const user_data = res.locals.user_data;
+  res.locals.access_token = jwt.sign(
+    { user_name: user_data.user_name },
+    process.env.SECRETE_KEY,
+    { expiresIn: "120s" }
+  );
+  return next();
+}
+
+async function check_refresh_token(req, res, next) {
+  const refreshToken =
+    req.body["refresh_token"] || req.headers["refresh_token"];
+  if (!refreshToken) {
+    return res.status(401).json({ error: "Missing refresh token" });
+  }
+
+  try {
+    jwt.verify(refreshToken, process.env.SECRETE_KEY);
+  } catch (e) {
+    if (e.name === "TokenExpiredError") {
+      return res.status(401).json({ error: "Refresh token expired" });
+    } else {
+      return res.status(401).json({ error: "Invalid refresh token" });
     }
+  }
 
-    try {
-      jwt.verify(refreshToken, process.env.SECRETE_KEY);
-    } catch (e) {
-      if (e.name === "TokenExpiredError") {
-        return res.status(401).json({ error: "Refresh token expired" });
-      } else {
-        return res.status(401).json({ error: "Invalid refresh token" });
-      }
-    }
+  const user_data = await MysqlClient("user_refresh_token")
+    .where("user_refresh_token.refresh_token", "=", refreshToken)
+    .join("user", "user_refresh_token.user_id", "=", "user.id")
+    .first();
 
-    const user_data = await MysqlClient("user_refresh_token")
-      .where("user_refresh_token.refresh_token", "=", refreshToken)
-      .join("user", "user_refresh_token.user_id", "=", "user.id")
-      .first();
-
-    if (!user_data) {
-      return res.status(401).json({ error: "Refresh token doesn't exist" });
-    }
-
-    res.locals.access_token = jwt.sign(
-      { user_name: user_data.user_name },
-      process.env.SECRETE_KEY,
-      { expiresIn: "120s" }
-    );
-
-    return next();
-  };
+  if (!user_data) {
+    return res.status(401).json({ error: "Refresh token doesn't exist" });
+  }
+  res.locals.user_data = user_data;
+  return next();
 }
 
 function check_access_token(req, res, next) {
@@ -128,5 +129,6 @@ export {
   fetch_films_from_server_B,
   forward_server_B_data,
   check_access_token,
-  check_refresh_token_mw_builder,
+  check_refresh_token,
+  refresh_access_token,
 };

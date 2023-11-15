@@ -88,9 +88,15 @@ function check_secretkey(req, res, next) {
   }
   const [payload64, signature] = secretkey.split(".");
   const payload = JSON.parse(Buffer.from(payload64, "base64url"));
+
   if (Math.floor(new Date().getTime() / 1000) > (payload["iat"] + 120) * 1000) {
     return res.status(401).json({ error: "Token expired" });
   }
+
+  if (req.originalUrl !== payload["url"]) {
+    return res.status(401).json({ error: "Secret key path mismatch" });
+  }
+
   if (
     signature !=
     crypto
@@ -103,6 +109,7 @@ function check_secretkey(req, res, next) {
   next();
 }
 app.use("/api/v3/film", check_secretkey, films_router);
+app.use("/api/lam/v4.2/film", check_secretkey, films_router);
 app.use("/api/lam/v4.3/film", check_secretkey, films_router);
 
 //V4 Access token & refresh token

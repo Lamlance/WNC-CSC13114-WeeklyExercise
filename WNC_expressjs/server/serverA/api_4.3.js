@@ -7,10 +7,11 @@ import crypto from "crypto";
 import fetch from "node-fetch";
 import {
   check_access_token,
-  check_refresh_token_mw_builder,
+  check_refresh_token,
   create_secrete_key,
   fetch_films_from_server_B,
   forward_server_B_data,
+  refresh_access_token,
 } from "../utils.js";
 
 /**
@@ -20,21 +21,12 @@ import {
 /**
  * @type {express_middleware}
  */
-async function check_or_skip_refresh_token_builder(req, res, next) {
-  if (res.locals.access_token !== "") {
-    /** @type {express_middleware} */
-    return function (req, res, next) {
-      next();
-    };
-  }
-
-  return check_refresh_token_mw_builder(res.header["refresh_token"]);
-}
 
 api_router.use(
   "/film",
   //check_access_token,
-  //check_or_skip_refresh_token_builder(),
+  //check_refresh_token,
+  //refresh_access_token,
   async function (req, res, next) {
     const old_send = res.send;
     res.send = function (data) {
