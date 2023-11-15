@@ -8,15 +8,12 @@ import { MysqlClient } from "../src/db/connect.js";
  * @typedef {(req:import("express").Request,res:import("express").Response,next:import("express").NextFunction)=>any} express_middleware
  */
 
-/**
- * @type {express_middleware}
- */
+/** @type {express_middleware} */
 async function create_secrete_key(req, res, next) {
   const payload = {
     iat: Math.floor(new Date().getTime() / 1000),
     url: req.originalUrl,
   };
-  // console.log(process.env.SECRETE_KEY)
   const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString(
     "base64url"
   );
@@ -30,9 +27,7 @@ async function create_secrete_key(req, res, next) {
   return next();
 }
 
-/**
- * @type {express_middleware}
- */
+/** @type {express_middleware} */
 async function fetch_films_from_server_B(req, res, next) {
   const body =
     !req.body || Object.keys(req.body).length === 0
@@ -51,9 +46,7 @@ async function fetch_films_from_server_B(req, res, next) {
   return next();
 }
 
-/**
- * @type {express_middleware}
- */
+/** @type {express_middleware} */
 async function forward_server_B_data(req, res) {
   /** @type {{serverB: Response | undefined}} */
   const { serverB } = res.locals;
@@ -68,6 +61,10 @@ async function forward_server_B_data(req, res) {
 /** @type {express_middleware} */
 
 function refresh_access_token(req, res, next) {
+  if (res.locals.access_token_expired === false) {
+    return next();
+  }
+
   const user_data = res.locals.user_data;
   res.locals.access_token = jwt.sign(
     { user_name: user_data.user_name },
@@ -77,6 +74,7 @@ function refresh_access_token(req, res, next) {
   return next();
 }
 
+/** @type {express_middleware} */
 async function check_refresh_token(req, res, next) {
   const refreshToken =
     req.body["refresh_token"] || req.headers["refresh_token"];
@@ -106,19 +104,28 @@ async function check_refresh_token(req, res, next) {
   return next();
 }
 
+/** @type {express_middleware} */
 function check_access_token(req, res, next) {
   const auth_header = req.headers["authorization"];
 
-  const access_token = auth_header && auth_header.split(".")[1];
+  const access_token = auth_header && auth_header.split(" ")[1];
   if (!access_token) {
     return res.status(401).json({ message: "Missing access token" });
   }
 
   jwt.verify(access_token, process.env.SECRETE_KEY, function (err, decoded) {
-    if (err.name === "TokenExpiredError") {
+    const payload = JSON.parse(
+      Buffer.from(access_token.split(".")[1], "base64url")
+    );
+    if (
+      (err && err.name === "TokenExpiredError") ||
+      (payload.exp && payload.exp < new Date().getTime() / 1000)
+    ) {
       res.locals.access_token = "";
+      res.locals.access_token_expired = true;
     } else {
       res.locals.access_token = access_token;
+      res.locals.access_token_expired = false;
     }
     next();
   });

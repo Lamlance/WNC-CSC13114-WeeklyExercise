@@ -24,15 +24,15 @@ import {
 
 api_router.use(
   "/film",
-  //check_access_token,
-  //check_refresh_token,
-  //refresh_access_token,
+  check_access_token,
+  check_refresh_token,
+  refresh_access_token,
   async function (req, res, next) {
     const old_send = res.send;
     res.send = function (data) {
       const new_obj = {
         data: JSON.parse(data),
-        token: res.locals.access_token,
+        access_token: res.locals.access_token,
       };
       arguments[0] = JSON.stringify(new_obj);
       old_send.apply(res, arguments);
