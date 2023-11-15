@@ -18,12 +18,10 @@ import {
   CreateNewRefreshToken,
   FindUserRefreshToken,
 } from "../src/db/user-refresh-token.js";
+import { api_router_v4_3 } from "./serverA/api_4.3.js";
 
 const app = express();
 const PORT = 3031;
-app.listen(PORT, function () {
-  console.log(`Server A at http://localhost:${PORT}`);
-});
 
 /**
  * @param {import("express").Request} req
@@ -102,30 +100,32 @@ app.use(
 
 //V3 Secret key
 
+async function create_secrete_key(req, res, next) {
+  const payload = {
+    iat: Math.floor(new Date().getTime() / 1000),
+    url: req.originalUrl,
+  };
+  // console.log(process.env.SECRETE_KEY)
+  const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString(
+    "base64url"
+  );
+  const signature = crypto
+    .createHmac("sha256", process.env.SECRETE_KEY)
+    .update(payload64)
+    .digest("base64url");
+  const secretkey = payload64 + "." + signature;
+  res.locals.token = "Key " + (secretkey || "");
+
+  return next();
+}
+
 /** @type {string | undefined}
  * @param {object} header
  * @param {object} payload
  */
 app.use(
   "/api/v3/film",
-  async function (req, res, next) {
-    const payload = {
-      iat: Math.floor(new Date().getTime() / 1000),
-      url: "/api/v3/film",
-    };
-    // console.log(process.env.SECRETE_KEY)
-    const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString(
-      "base64url"
-    );
-    const signature = crypto
-      .createHmac("sha256", process.env.SECRETE_KEY)
-      .update(payload64)
-      .digest("base64url");
-    const secretkey = payload64 + "." + signature;
-    res.locals.token = "Key " + (secretkey || "");
-
-    return next();
-  },
+  create_secrete_key,
   fetch_films_from_server_B,
   forward_server_B_data
 );
@@ -279,3 +279,9 @@ app.use(
   // fetch_films_from_server_B,
   // forward_server_B_data
 );
+
+app.use("/api/lam/v4.3", api_router_v4_3);
+
+app.listen(PORT, function () {
+  console.log(`Server A at http://localhost:${PORT}`);
+});

@@ -1,0 +1,132 @@
+import { Router } from "express";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import fetch from "node-fetch";
+import { MysqlClient } from "../src/db/connect.js";
+
+/**
+ * @typedef {(req:import("express").Request,res:import("express").Response,next:import("express").NextFunction)=>any} express_middleware
+ */
+
+/**
+ * @type {express_middleware}
+ */
+async function create_secrete_key(req, res, next) {
+  const payload = {
+    iat: Math.floor(new Date().getTime() / 1000),
+    url: req.originalUrl,
+  };
+  // console.log(process.env.SECRETE_KEY)
+  const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString(
+    "base64url"
+  );
+  const signature = crypto
+    .createHmac("sha256", process.env.SECRETE_KEY)
+    .update(payload64)
+    .digest("base64url");
+  const secretkey = payload64 + "." + signature;
+  res.locals.token = "Key " + (secretkey || "");
+
+  return next();
+}
+
+/**
+ * @type {express_middleware}
+ */
+async function fetch_films_from_server_B(req, res, next) {
+  const body =
+    !req.body || Object.keys(req.body).length === 0
+      ? {}
+      : { body: JSON.stringify(req.body) };
+
+  const data = await fetch("http://localhost:3032" + req.originalUrl, {
+    method: req.method,
+    ...body,
+    headers: {
+      authorization: res.locals.token || "",
+    },
+  });
+
+  res.locals.serverB = data;
+  return next();
+}
+
+/**
+ * @type {express_middleware}
+ */
+async function forward_server_B_data(req, res) {
+  /** @type {{serverB: Response | undefined}} */
+  const { serverB } = res.locals;
+
+  if (serverB) {
+    return res.status(serverB.status).json(await serverB.json());
+  } else {
+    return res.status(500).json({ error: "Server error" });
+  }
+}
+
+/**
+ * @returns {express_middleware}
+ */
+function check_refresh_token_mw_builder(token) {
+  /** @type {express_middleware} */
+  return async function (req, res, next) {
+    const refreshToken = token;
+    if (!refreshToken) {
+      return res.status(401).json({ error: "Missing refresh token" });
+    }
+
+    try {
+      jwt.verify(refreshToken, process.env.SECRETE_KEY);
+    } catch (e) {
+      if (e.name === "TokenExpiredError") {
+        return res.status(401).json({ error: "Refresh token expired" });
+      } else {
+        return res.status(401).json({ error: "Invalid refresh token" });
+      }
+    }
+
+    const user_data = await MysqlClient("user_refresh_token")
+      .where("user_refresh_token.refresh_token", "=", refreshToken)
+      .join("user", "user_refresh_token.user_id", "=", "user.id")
+      .first();
+
+    if (!user_data) {
+      return res.status(401).json({ error: "Refresh token doesn't exist" });
+    }
+
+    res.locals.access_token = jwt.sign(
+      { user_name: user_data.user_name },
+      process.env.SECRETE_KEY,
+      { expiresIn: "120s" }
+    );
+
+    return next();
+  };
+}
+
+function check_access_token(req, res, next) {
+  const auth_header = req.headers["authorization"];
+
+  const access_token = auth_header && auth_header.split(".")[1];
+  if (!access_token) {
+    return res.status(401).json({ message: "Missing access token" });
+  }
+
+  jwt.verify(access_token, process.env.SECRETE_KEY, function (err, decoded) {
+    if (err.name === "TokenExpiredError") {
+      res.locals.access_token = "";
+    } else {
+      res.locals.access_token = access_token;
+    }
+    next();
+  });
+}
+
+export {
+  create_secrete_key,
+  fetch_films_from_server_B,
+  forward_server_B_data,
+  check_access_token,
+  check_refresh_token_mw_builder,
+};
