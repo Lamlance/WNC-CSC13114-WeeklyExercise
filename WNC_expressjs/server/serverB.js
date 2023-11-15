@@ -103,6 +103,7 @@ function check_secretkey(req, res, next) {
   next();
 }
 app.use("/api/v3/film", check_secretkey, films_router);
+app.use("/api/lam/v4.3/film", check_secretkey, films_router);
 
 //V4 Access token & refresh token
 

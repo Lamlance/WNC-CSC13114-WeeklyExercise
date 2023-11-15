@@ -6,6 +6,19 @@ import fetch from "node-fetch";
 import crypto from "crypto";
 
 import "dotenv/config";
+import jwt from "jsonwebtoken";
+
+import {
+  FindUserByUsername,
+  CreateUser,
+  FindUser,
+  FindUserById,
+} from "../src/db/user.js";
+import {
+  CreateNewRefreshToken,
+  FindUserRefreshToken,
+} from "../src/db/user-refresh-token.js";
+import { api_router_v4_3 } from "./serverA/api_4.3.js";
 import { api_router_v4_2 } from "./serverA/api_4.2.js";
 const app = express();
 const PORT = 3031;
@@ -86,6 +99,24 @@ app.use(
 );
 
 //V3 Secret key
+async function create_secrete_key(req, res, next) {
+  const payload = {
+    iat: Math.floor(new Date().getTime() / 1000),
+    url: req.originalUrl,
+  };
+  // console.log(process.env.SECRETE_KEY)
+  const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString(
+    "base64url"
+  );
+  const signature = crypto
+    .createHmac("sha256", process.env.SECRETE_KEY)
+    .update(payload64)
+    .digest("base64url");
+  const secretkey = payload64 + "." + signature;
+  res.locals.token = "Key " + (secretkey || "");
+
+  return next();
+}
 
 /** @type {string | undefined}
  * @param {object} header
@@ -93,6 +124,7 @@ app.use(
  */
 app.use(
   "/api/v3/film",
+  create_secrete_key,
   async function (req, res, next) {
     const payload = {
       iat: Math.floor(new Date().getTime() / 1000),
@@ -161,6 +193,111 @@ app.use(
   forward_server_B_data
 );
 
+// V4.3: Client send access token & refresh token every requests
+app.use("/api/v4.3/register", async (req, res) => {
+  const { userName, pwd } = req.body;
+
+  const existingUser = await FindUserByUsername(userName);
+  if (existingUser) {
+    return res.status(400).json({ error: "Username already exists" });
+  }
+  const hashedPassword = crypto
+    .createHmac("sha256", process.env.SECRETE_KEY)
+    .update(pwd)
+    .digest("base64url");
+
+  const userId = await CreateUser({
+    user_name: userName,
+    pwd: hashedPassword,
+  });
+
+  if (typeof userId !== TypeError) {
+    const user = await FindUserById(userId[0]);
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN);
+    const result = await CreateNewRefreshToken(user.user_id, refreshToken);
+    if (result) {
+      return res
+        .status(200)
+        .json({ message: "Signed up successfully!", refreshToken });
+    }
+  }
+  return res.status(500).json({ message: "Something is wrong!" });
+});
+
+app.use("/api/v4.3/login", async (req, res) => {
+  const { userName, pwd } = req.body;
+
+  const hashedPassword = crypto
+    .createHmac("sha256", process.env.SECRETE_KEY)
+    .update(pwd)
+    .digest("base64url");
+
+  const user = await FindUser(userName, hashedPassword);
+
+  if (user) {
+    const accessToken = jwt.sign(user, process.env.SECRETE_KEY, {
+      expiresIn: "2m",
+    });
+
+    const refreshToken = await FindUserRefreshToken(user.user_id);
+
+    if (refreshToken) {
+      return res.status(200).json({
+        accessToken,
+        refreshToken: refreshToken.refresh_token,
+        message: "Logged in successfully!",
+      });
+    }
+  }
+  return res.status(400).json({ message: "Invalid user! " });
+});
+
+app.use(
+  "/api/v4.3/films",
+  async (req, res, next) => {
+    const accessToken = req.headers["accesstoken"];
+    const refreshToken = req.headers["refreshtoken"];
+
+    const authToken = accessToken;
+    if (!authToken) {
+      return res.status(401).json({ message: "Unauthorized!" });
+    }
+
+    jwt.verify(authToken, process.env.SECRETE_KEY, (err, decoded) => {
+      if (!err) {
+        res.locals.user = decoded;
+        return next();
+      }
+      if (err.name === "TokenExpiredError") {
+        try {
+          const tmp = jwt.verify(refreshToken, process.env.REFRESH_TOKEN);
+          res.locals.user = tmp;
+          res.locals.newAccessToken = jwt.sign(tmp, process.env.SECRETE_KEY, {
+            expiresIn: "2m",
+          });
+          return next();
+        } catch (err) {
+          console.log(err);
+          return res.status(400).json({ message: "Invalid refresh token!" });
+        }
+      }
+      return res.status(400).json({ message: "Invalid access token!" });
+    });
+  },
+  async (req, res) => {
+    console.log(res.locals);
+    if (res.locals.newAccessToken) {
+      return res
+        .status(200)
+        .json({ accessToken: res.locals.newAccessToken, data: [] });
+    }
+    return res.status(200).json({ data: [] });
+  }
+  // fetch_films_from_server_B,
+  // forward_server_B_data
+);
+
+app.use("/api/lam/v4.3", api_router_v4_3);
 app.use("/api/lam/v4.2", api_router_v4_2);
 
 app.listen(PORT, function () {
