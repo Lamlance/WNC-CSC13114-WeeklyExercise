@@ -1,5 +1,4 @@
 import { URL, URLSearchParams } from "url";
-import actors_router from "../src/routes/api/actors.js";
 import express from "express";
 import fetch from "node-fetch";
 
@@ -7,20 +6,21 @@ import crypto from "crypto";
 
 import "dotenv/config";
 import jwt from "jsonwebtoken";
+import films_router from "../src/routes/api/films.js";
+import {
+  check_access_token,
+  check_refresh_token,
+  create_secrete_key,
+  fetch_films_from_server_B,
+  forward_server_B_data,
+  refresh_access_token,
+} from "./utils.js";
+import { create_acess_token } from "../src/routes/login.js";
+import actors_router from "../src/routes/api/actors.js";
+import { validateLogin } from "../src/middlewares/validateLogin.js";
 
-import {
-  FindUserByUsername,
-  CreateUser,
-  FindUser,
-  FindUserById,
-} from "../src/db/user.js";
-import {
-  CreateNewRefreshToken,
-  FindUserRefreshToken,
-} from "../src/db/user-refresh-token.js";
-import { api_router_v4_3 } from "./serverA/api_4.3.js";
-import { api_router_v4_2 } from "./serverA/api_4.2.js";
 const app = express();
+app.use(express.json());
 const PORT = 3031;
 
 /**
@@ -28,109 +28,54 @@ const PORT = 3031;
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
  */
-async function fetch_films_from_server_B(req, res, next) {
-  const body =
-    !req.body || Object.keys(req.body).length === 0
-      ? {}
-      : { body: JSON.stringify(req.body) };
-
-  const data = await fetch("http://localhost:3032" + req.originalUrl, {
-    method: req.method,
-    ...body,
-    headers: {
-      authorization: res.locals.token || "",
-    },
-  });
-
-  res.locals.serverB = data;
-  return next();
-}
-/**
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- */
-async function forward_server_B_data(req, res) {
-  /** @type {{serverB: Response | undefined}} */
-  const { serverB } = res.locals;
-
-  if (serverB) {
-    return res.status(serverB.status).json(await serverB.json());
-  } else {
-    return res.status(500).json({ error: "Server error" });
-  }
+function express_data_hook(req, res, next) {
+  const old_send = res.send;
+  res.send = function () {
+    const new_obj = {
+      data: JSON.parse(arguments[0]),
+      access_token: res.locals.access_token,
+    };
+    arguments[0] = JSON.stringify(new_obj);
+    old_send.apply(res, arguments);
+  };
+  next();
 }
 
-app.use(express.json());
-app.use("/api/actor", actors_router);
+app.post("/login", validateLogin, async function (req, res) {
+  /**@type {{user_name:string}} */
+  const { user_name } = req.body;
 
-//V1: Ko co authorization
-app.use("/api/v1/film", fetch_films_from_server_B, forward_server_B_data);
-
-//V2: Access token only
-/** @type {string | undefined} */
-let access_token_v2 = undefined;
-const login_body = { user_name: "admin", pwd: "admin" };
-
-const login_body_Client = { user_name: "ServerA", pwd: "ServerA" };
-
-app.use("/api/v2/login", async function (req, res) {
-  const respond = await fetch("http://localhost:3032/api/v2/auth", {
-    method: "post",
-    body: Buffer.from(JSON.stringify(login_body)),
-    headers: { "Content-Type": "application/json" },
+  const token = jwt.sign({ user_name }, process.env.SECRETE_KEY, {
+    expiresIn: "120s",
   });
-  const data = await respond.json();
-  if (data.access_token) {
-    access_token_v2 = data.access_token;
-    return res.status(200).json({ access_token: access_token_v2 });
-  } else {
-    return res.status(respond.status).json(data);
+  const refresh_token = jwt.sign({ user_name }, process.env.SECRETE_KEY, {
+    expiresIn: "15d",
+  });
+
+  try {
+    await MysqlClient("user_refresh_token").insert({
+      refresh_token: refresh_token,
+      user_id: res.locals.user_data.id,
+    });
+    return res
+      .status(200)
+      .json({ access_token: token, refresh_token: refresh_token });
+  } catch (e) {
+    return res.status(500).json({ error: "Server can't create refresh token" });
   }
 });
 
 app.use(
-  "/api/v2/film",
-  async function (req, res, next) {
-    res.locals.token = "Bearer " + (access_token_v2 || "");
-    return next();
-  },
-  fetch_films_from_server_B,
-  forward_server_B_data
-);
-
-//V3 Secret key
-async function create_secrete_key(req, res, next) {
-  const payload = {
-    iat: Math.floor(new Date().getTime() / 1000),
-    url: req.originalUrl,
-  };
-  // console.log(process.env.SECRETE_KEY)
-  const payload64 = Buffer.from(JSON.stringify(payload), "utf-8").toString(
-    "base64url"
-  );
-  const signature = crypto
-    .createHmac("sha256", process.env.SECRETE_KEY)
-    .update(payload64)
-    .digest("base64url");
-  const secretkey = payload64 + "." + signature;
-  res.locals.token = "Key " + (secretkey || "");
-
-  return next();
-}
-
-/** @type {string | undefined}
- * @param {object} header
- * @param {object} payload
- */
-app.use(
-  "/api/v3/film",
+  "/api/",
+  check_access_token,
+  check_refresh_token,
+  refresh_access_token,
   create_secrete_key,
-  fetch_films_from_server_B,
-  forward_server_B_data
+  express_data_hook
 );
 
-app.use("/api/v4.3", api_router_v4_3);
-app.use("/api/v4.2", api_router_v4_2);
+app.use("/api/actor", actors_router);
+app.use("/api/film", fetch_films_from_server_B, forward_server_B_data);
 
 app.listen(PORT, function () {
   console.log(`Server A at http://localhost:${PORT}`);

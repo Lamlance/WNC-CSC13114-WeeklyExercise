@@ -17,9 +17,6 @@ const [admin_name, admin_pwd] = ["admin", "admin"];
 
 app.use(express.json());
 
-//V1: Ko co authorization
-app.use("/api/v1/film", films_router);
-
 /**
  * @param {import("express").Request} req
  * @param {import("express").Response} res
@@ -54,10 +51,8 @@ function check_secretkey(req, res, next) {
   }
   next();
 }
-app.use("/api/v2/film", films_router);
-app.use("/api/v3/film", check_secretkey, films_router);
-app.use("/api/v4.2/film", check_secretkey, films_router);
-app.use("/api/v4.3/film", check_secretkey, films_router);
+
+app.use("/api/film", check_secretkey, films_router);
 
 app.listen(PORT, function () {
   console.log(`Server B at http://localhost:${PORT}`);

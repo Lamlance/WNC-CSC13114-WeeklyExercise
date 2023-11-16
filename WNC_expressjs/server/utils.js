@@ -1,6 +1,6 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
+import crypto, { createHash } from "crypto";
 import fetch from "node-fetch";
 import { MysqlClient } from "../src/db/connect.js";
 
@@ -22,7 +22,7 @@ async function create_secrete_key(req, res, next) {
     .update(payload64)
     .digest("base64url");
   const secretkey = payload64 + "." + signature;
-  res.locals.token = "Key " + (secretkey || "");
+  res.locals.token = "Bearer " + (secretkey || "");
 
   return next();
 }
