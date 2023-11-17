@@ -1,0 +1,11 @@
+syntax = "proto2";
+package message;
+
+message TestMessage {
+  optional string message = 1 ;
+}
+
+service TestMessageService {
+  rpc Send (TestMessage) returns (TestMessage) ;
+}
+
