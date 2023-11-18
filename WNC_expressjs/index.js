@@ -1,4 +1,5 @@
 import express from "express";
+import bodyParser from "body-parser";
 import actors_router from "./src/routes/api/actors.js";
 import films_router from "./src/routes/api/films.js";
 import apidoc_routes from "./src/routes/api_docs.js";
@@ -9,8 +10,11 @@ import "dotenv/config";
 import login_router from "./src/routes/login.js";
 import cors from "cors";
 import { validate_jwt_wo_lib_mw } from "./src/middlewares/validateToken.js";
+import constrollers from "./pub_sub/controller.js";
+import RabbitMQConfig from "./pub_sub/config.js";
 const app = express();
 const PORT = 3085;
+const jsonParser = bodyParser.json();
 
 app.options("*", cors());
 app.use(express.json());
@@ -30,6 +34,15 @@ app.get("/", (req, res) => {
   res.status(200).json({
     Hello: "World",
   });
+});
+
+// Pub/Sub RabbitMQ
+app.post("/api/pub", jsonParser, constrollers.sendMessage);
+const queue = "order";
+const rabbitMQConfig = new RabbitMQConfig();
+await rabbitMQConfig.connect();
+await rabbitMQConfig.subscribeToQueue(queue, (message) => {
+  console.log("Received message:", message);
 });
 
 app.use("/auth", login_router);
