@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat app</title>
+    <script type="module" defer>
+      import { Manager } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+
+      let chat_socket;
+      let my_name = "unknow";
+      function connect() {
+        const manager = new Manager("ws://localhost:3070/", {
+          reconnectionDelayMax: 10000,
+          query: {
+            name: my_name,
+          },
+        });
+        chat_socket = manager.socket("/chat");
+        chat_socket.on("message", handle_message);
+        chat_socket.on("connect", () => {
+          console.log("Connect", chat_socket.id);
+          send_message();
+        });
+      }
+
+      function send_message(msg = "Hello") {
+        chat_socket.emit("message", msg);
+      }
+
+      function handle_message(data) {
+        console.log(data);
+      }
+
+      connect();
+    </script>
+  </head>
+  <body></body>
+</html>

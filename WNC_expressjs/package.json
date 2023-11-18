@@ -7,12 +7,16 @@
   "scripts": {
     "dev": "nodemon index.js",
     "dev_sec": "concurrently --kill-others \"nodemon server/serverA.js\" \"nodemon server/serverB.js\"",
+    "dev_chat": "nodemon chat_socket/server.js",
+    "grpc": "concurrently --kill-others \"nodemon grpc/serverA.js\" \"nodemon grpc/serverB.js\"",
     "start": "node index.js",
     "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@grpc/grpc-js": "^1.9.10",
+    "@grpc/proto-loader": "^0.7.10",
     "@pm2/io": "^5.0.2",
     "amqplib": "^0.10.3",
     "cors": "^2.8.5",
@@ -23,6 +27,7 @@
     "mysql2": "^3.6.1",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.0.1",
+    "socket.io": "^4.7.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "winston": "^3.11.0",
