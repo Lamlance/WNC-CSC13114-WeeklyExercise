@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "dev_sec": "concurrently --kill-others \"nodemon server/serverA.js\" \"nodemon server/serverB.js\"",
+    "dev_pub_sub": "concurrently --kill-others \"nodemon rabbitmq/pub_sub/publishServer.js\" \"nodemon rabbitmq/pub_sub/consumeServer.js\"",
     "dev_chat": "nodemon chat_socket/server.js",
     "grpc": "concurrently --kill-others \"nodemon grpc/serverA.js\" \"nodemon grpc/serverB.js\"",
     "start": "node index.js",
@@ -19,6 +20,7 @@
     "@grpc/proto-loader": "^0.7.10",
     "@pm2/io": "^5.0.2",
     "amqplib": "^0.10.3",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
