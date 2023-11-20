@@ -1,57 +1,9 @@
-import amqp, { connect } from "amqplib/callback_api.js";
+import amqplib from "amqplib";
+import express from "express";
 
-let args = process.argv.slice(2);
+const app = express();
 
-if (args.length == 0) {
-  console.log("Usage: rpc_client.js num");
-  process.exit(1);
-}
-
-amqp.connect("amqp://localhost", (err0, connection) => {
-  if (err0) {
-    throw err0;
-  }
-
-  connection.createChannel((err1, channel) => {
-    if (err1) {
-      throw err1;
-    }
-
-    channel.assertQueue(
-      "",
-      {
-        exclusive: true,
-      },
-      (err2, q) => {
-        if (err2) {
-          throw err2;
-        }
-
-        let correlationId = generateUuid();
-        let num = parseInt(args[0]);
-
-        console.log(` [x] Requesting fib(${num})`);
-
-        channel.consume(q.queue, (msg) => {
-            if (msg.properties.correlationId == correlationId) {
-                console.log(' [.] Got %s', msg.content.toString());
-                setTimeout(() => {
-                    connection.close();
-                    process.exit(0);
-                }, 500);
-            }
-        }, {
-            noAck: true
-        });
-
-        channel.sendToQueue('rpc_queue', Buffer.from(num.toString()), {
-            correlationId: correlationId,
-            replyTo: q.queue 
-        });
-      }
-    );
-  });
-});
+app.use(express.json());
 
 function generateUuid() {
   return (
@@ -60,3 +12,54 @@ function generateUuid() {
     Math.random().toString()
   );
 }
+
+const PORT = 9005;
+
+let connection;
+let channel;
+let q;
+
+
+async function connect() {
+  try {
+    const amqpServer = "ampq://localhost:5762";
+    connection = await amqplib.connect(amqpServer);
+    channel = await connection.createChannel();
+
+    q = await channel.assertQueue("", {
+      exclusive: true,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+connect();
+
+
+app.post("/actors", (req, res) => {
+  console.log(` [x] Requesting actor ${id}`);
+
+  let correlationId = generateUuid();
+
+  channel.consume(q.queue, (msg) => {
+    if (msg.properties.correlationId == correlationId) {
+      console.log(` [.] Got ${msg.content.toString()} `);
+    }
+  }, {
+    noAck: true
+  });
+
+  channel.sendToQueue("rpc_queue", Buffer.from("actors"), {
+    correlationId: correlationId,
+    replyTo: q.queue
+  });
+});
+
+app.get("*", (req, res) => {
+  res.status(404).send("Not exist url path");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on ${PORT}`);
+});
