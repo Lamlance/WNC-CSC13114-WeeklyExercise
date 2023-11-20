@@ -18,11 +18,14 @@ npm run dev_rr
   "num1": 3,
   "num2": 5
 }
+```
+
 or
+
+```json
 {
   "operation": "sum",
   "num1": 3,
   "num2": 5
 }
-
 ```
