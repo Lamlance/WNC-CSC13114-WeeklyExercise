@@ -10,6 +10,7 @@ class RabbitMQLogger extends Transport {
    * @type {amqp.Channel | null}
    */
   rabbitmq_channel = null;
+
   /**
    * @param {Transport.TransportStreamOptions | undefined} opts
    */
