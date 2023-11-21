@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 app.use("/auth", login_router);
 
 // routes
-app.use("/api/actors/", logMiddleware, validate_jwt_wo_lib_mw, actors_router);
+app.use("/api/actors/", logMiddleware, actors_router);
 
 app.use("/api/films/", logMiddleware, validate_jwt_wo_lib_mw, films_router);
 
