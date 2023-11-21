@@ -8,15 +8,15 @@ npm run dev_rr
 
 ### API Endpoint
 
-- `POST localhost:3090/operate`
+- `POST localhost:3090/actor`
 
 ### Sample Request Body
 
 ```json
 {
-  "operation": "multiply",
-  "num1": 3,
-  "num2": 5
+
+  "first_name": "Van",
+  "last_nmae": "Duc
 }
 ```
 

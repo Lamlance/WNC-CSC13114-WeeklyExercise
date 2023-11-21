@@ -15,9 +15,6 @@ export default class Producer {
       replyTo: this.replyQueueName,
       correlationId: uuid,
       expiration: 10,
-      headers: {
-        function: data.operation,
-      },
     });
 
     return new Promise((resolve, reject) => {

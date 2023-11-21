@@ -11,7 +11,10 @@ export default class Consumer {
     this.channel.consume(
       this.replyQueueName,
       (message) => {
-        console.log("the reply is..", JSON.parse(message.content.toString()));
+        console.log(
+          "the reply is.. :  An new actor is added with id :",
+          JSON.parse(message.content.toString())
+        );
         this.eventEmitter.emit(
           message.properties.correlationId.toString(),
           message
