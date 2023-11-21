@@ -14,18 +14,7 @@ npm run dev_rr
 
 ```json
 {
-
   "first_name": "Van",
-  "last_nmae": "Duc
-}
-```
-
-or
-
-```json
-{
-  "operation": "sum",
-  "num1": 3,
-  "num2": 5
+  "last_name": "Duc"
 }
 ```
