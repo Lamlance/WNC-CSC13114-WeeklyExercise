@@ -22,7 +22,7 @@ let q;
 
 async function connect() {
   try {
-    const amqpServer = "ampq://localhost:5762";
+    const amqpServer = "amqp://localhost:5672";
     connection = await amqplib.connect(amqpServer);
     channel = await connection.createChannel();
 
@@ -37,14 +37,16 @@ async function connect() {
 connect();
 
 
-app.post("/actors", (req, res) => {
-  console.log(` [x] Requesting actor ${id}`);
+app.get("/actors", (req, res) => {
+  console.log(` [x] Requesting actors`);
 
   let correlationId = generateUuid();
 
+  console.log(q);
   channel.consume(q.queue, (msg) => {
     if (msg.properties.correlationId == correlationId) {
-      console.log(` [.] Got ${msg.content.toString()} `);
+      console.log(` [.] Got result! `);
+      return res.status(200).json(JSON.parse(msg.content));
     }
   }, {
     noAck: true

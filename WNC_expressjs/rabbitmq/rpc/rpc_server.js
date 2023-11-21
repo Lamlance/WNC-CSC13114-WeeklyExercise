@@ -18,22 +18,12 @@ let q;
 connect();
 
 const getAllActors = async () => {
-  const [queries, q_err] = await CallAndCatchAsync(
-    ActorGetSchema.parseAsync,
-    req.query
-  );
-
-  if (q_err != null) {
-    return res.status(400).json({ error: "Invalid params" });
+  try {
+    const actors = await GetActors({ skip: 0, take: 10 });
+    return actors;
+  } catch (err) {
+    return { msg: "Error when get actors" };
   }
-
-  const [data, err] = await CallAndCatchAsync(GetActors, queries);
-
-  if (err != null) {
-    return res.status(500).json({ error: "Something happend :))" });
-  }
-
-  return data;
 };
 
 async function connect() {
@@ -50,15 +40,16 @@ async function connect() {
     channel.prefetch(1);
     console.log(" [x] Awaiting RPC requests.");
 
-    channel.consume(queue, (msg) => {
+    channel.consume(queue, async (msg) => {
       if (msg.content.toString() == "actors") {
-        console.log(" [.] fib(%d)", n);
+        console.log(" [.] Resolving request...");
 
-        const r = getAllActors();
+        const r = await getAllActors();
 
-        channel.sendToQueue(msg.properties.replyTo, Buffer.from(r.toString()), {
+        channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(r)), {
           correlationId: msg.properties.correlationId,
         });
+        console.log("Sended!");
       }
       channel.ack(msg);
     });
