@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat app</title>
+  <script type="module" defer>
+    import { Manager } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+
+    let chat_socket;
+    let my_name = "unknow";
+    function connect() {
+      console.log('c')
+      const manager = new Manager("ws://localhost:3070/", {
+        reconnectionDelayMax: 10000,
+        query: {
+          name: my_name,
+        },
+      });
+      chat_socket = manager.socket("/chat");
+      chat_socket.on("message", handle_message);
+      // chat_socket.on('message', text => {
+      //   document.getElementById('chat-history').value += JSON.stringify(text);
+      // });
+      chat_socket.on("connect", () => {
+        console.log("Connect", chat_socket.id);
+        send_message();
+      });
+    }
+
+    function send_message() {
+      const msg = document.getElementById("chat-input").value;
+      if (msg.length === 0) {
+        return;
+      }
+      document.getElementById("chat-input").value = "";
+      chat_socket.emit("message", msg);
+    }
+
+    function handle_message(data) {
+      document.getElementById('chat-history').value += data.name + ":" + data.message + "\n";
+    }
+
+    connect();
+
+    document.querySelector('button').onclick = () => {
+      send_message();
+    }
+    document.getElementById("chat-input").addEventListener("keyup", function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+          console.log("c")
+          send_message();
+        }
+      });
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+</head>
+
+<body>
+  <div class="container w-50">
+    <p class="text-welcome fs-3 fw-bold text-center">Hello</p>
+    <div class="mb-3">
+      <textarea class="form-control" id="chat-history" rows="20"></textarea>
+    </div>
+    <div class="input-group mb-3">
+      <!-- <span class="input-group-text" id="host"> Hostname: </span> -->
+      <input type="text" class="form-control" id="chat-input" placeholder="Nhập tin nhắn"
+        aria-describedby="basic-addon3 basic-addon4" />
+      <button class="btn btn-sm btn-primary" id="btn-fetch-api"> Gửi </button>
+    </div>
+  </div>
+</body>
+
+</html>
