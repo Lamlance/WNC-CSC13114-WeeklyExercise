@@ -7,10 +7,14 @@
   "scripts": {
     "dev": "nodemon index.js",
     "dev_sec": "concurrently --kill-others \"nodemon server/serverA.js\" \"nodemon server/serverB.js\"",
+
+    "dev_rr": "concurrently --kill-others \"nodemon rabbitmq/req_res/rpc_client/server.js\" \"nodemon rabbitmq/req_res/rpc_server/server.js\" ",
+
     "dev_pub_sub": "concurrently --kill-others \"nodemon rabbitmq/pub_sub/publishServer.js\" \"nodemon rabbitmq/pub_sub/consumeServer.js\"",
     "dev_chat": "nodemon chat_socket/server.js",
     "grpc": "concurrently --kill-others \"nodemon grpc/serverA.js\" \"nodemon grpc/serverB.js\"",
     "rbrpc": "nodemon rabbitmq/rpc/server.js",
+
     "start": "node index.js",
     "test": "mocha"
   },
@@ -25,6 +29,7 @@
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
+    "events": "^3.3.0",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "knex": "^2.5.1",

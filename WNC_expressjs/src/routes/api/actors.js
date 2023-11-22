@@ -173,4 +173,4 @@ actors_router.delete("/:id", async function (req, res, next) {
 
 export default actors_router;
 
-export { ActorCreateSchema, ActorPutSchema, ActorPatchSchema };
+export { ActorGetSchema, ActorCreateSchema, ActorPutSchema, ActorPatchSchema };
