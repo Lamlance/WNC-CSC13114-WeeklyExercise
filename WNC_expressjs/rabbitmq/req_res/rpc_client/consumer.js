@@ -12,7 +12,7 @@ export default class Consumer {
       this.replyQueueName,
       (message) => {
         console.log(
-          "the reply is.. :  An new actor is added with id :",
+          "the reply is.. :  List actor : :",
           JSON.parse(message.content.toString())
         );
         this.eventEmitter.emit(

@@ -4,9 +4,9 @@ const PORT = 3090;
 const server = express();
 server.use(express.json()); // you need the body parser middleware
 
-server.post("/actor", async (req, res, next) => {
-  console.log(req.body);
-  const response = await RabbitMQClient.produce(req.body);
+server.get("/api/actor", async (req, res, next) => {
+  console.log(`Requesting actors`);
+  const response = await RabbitMQClient.produce("actors");
   res.send({ response });
 });
 
