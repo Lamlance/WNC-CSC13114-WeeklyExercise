@@ -46,9 +46,13 @@ async function connect() {
 
         const r = await getAllActors();
 
-        channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(r)), {
-          correlationId: msg.properties.correlationId,
-        });
+        channel.sendToQueue(
+          msg.properties.replyTo,
+          Buffer.from(JSON.stringify(r)),
+          {
+            correlationId: msg.properties.correlationId,
+          }
+        );
         console.log("Sended!");
       }
       channel.ack(msg);

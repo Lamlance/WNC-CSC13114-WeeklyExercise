@@ -6,7 +6,7 @@ const getAllActors = async () => {
     const actors = await GetActors({ skip: 0, take: 10 });
     return actors;
   } catch (err) {
-    return { msg: "Error when get actors" };
+    return { msg: "Error when get actors", error: err };
   }
 };
 export default class MessageHandler {

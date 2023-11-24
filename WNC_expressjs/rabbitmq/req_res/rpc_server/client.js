@@ -2,9 +2,13 @@ import { connect } from "amqplib";
 
 import Consumer from "./consumer.js";
 import Producer from "./producer.js";
-
-const url = "amqp://localhost";
-const rpcQueueName = "rpc_queue";
+const RABBITMQ_HOST = "localhost";
+const RABBITMQ_PORT = "8000";
+const RABBITMQ_USERNAME = "guest";
+const RABBITMQ_PASSWORD = "guest";
+const RABBITMQ_VHOST = "";
+const RABBITMQ_URL = `amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}/${RABBITMQ_VHOST}`;
+const rpcQueueName = "rpc_queue_rr";
 
 class RabbitMQClient {
   constructor() {
@@ -22,7 +26,7 @@ class RabbitMQClient {
       return;
     }
     try {
-      this.connection = await connect(url);
+      this.connection = await connect(RABBITMQ_URL);
 
       this.producerChannel = await this.connection.createChannel();
       this.consumerChannel = await this.connection.createChannel();

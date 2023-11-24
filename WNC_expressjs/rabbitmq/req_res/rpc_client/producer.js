@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 
-const rpcQueueName = "rpc_queue";
+const rpcQueueName = "rpc_queue_rr";
 export default class Producer {
   constructor(channel, replyQueueName, eventEmitter) {
     this.channel = channel;

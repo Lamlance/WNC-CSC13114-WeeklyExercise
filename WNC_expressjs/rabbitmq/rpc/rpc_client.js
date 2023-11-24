@@ -17,8 +17,9 @@ const PORT = 9005;
 
 let connection;
 let channel;
-let q;
 
+/**@type {amqplib.Replies.AssertQueue} */
+let q;
 
 async function connect() {
   try {
@@ -32,10 +33,9 @@ async function connect() {
   } catch (err) {
     console.log(err);
   }
-};
+}
 
 connect();
-
 
 app.get("/actors", (req, res) => {
   console.log(` [x] Requesting actors`);
@@ -43,18 +43,22 @@ app.get("/actors", (req, res) => {
   let correlationId = generateUuid();
 
   console.log(q);
-  channel.consume(q.queue, (msg) => {
-    if (msg.properties.correlationId == correlationId) {
-      console.log(` [.] Got result! `);
-      return res.status(200).json(JSON.parse(msg.content));
+  channel.consume(
+    q.queue,
+    (msg) => {
+      if (msg.properties.correlationId == correlationId) {
+        console.log(` [.] Got result! `);
+        return res.status(200).json(JSON.parse(msg.content));
+      }
+    },
+    {
+      noAck: true,
     }
-  }, {
-    noAck: true
-  });
+  );
 
   channel.sendToQueue("rpc_queue", Buffer.from("actors"), {
     correlationId: correlationId,
-    replyTo: q.queue
+    replyTo: q.queue,
   });
 });
 
