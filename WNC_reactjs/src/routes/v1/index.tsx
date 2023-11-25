@@ -1,4 +1,4 @@
-import TodoList from "../../components/todo-list";
+import TodoList from "../../components/v1/todo-list";
 
 const FirstHomePage = () => {
   return (
