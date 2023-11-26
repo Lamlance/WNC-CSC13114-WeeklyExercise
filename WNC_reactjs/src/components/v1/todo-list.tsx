@@ -15,6 +15,18 @@ const TodoList = () => {
     setTasks(updatedTasks);
   };
 
+  const handleCallbackCompleted = (id: string) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? ({ ...task, completed: !task.completed } as Todo) : task
+    );
+    setTasks(updatedTasks);
+  };
+
+  const handleCallbackRemoved = (id: string) => {
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+  };
+
   useEffect(() => {
     let savedTasks = localStorage.getItem("tasks");
     if (savedTasks) {
@@ -46,6 +58,8 @@ const TodoList = () => {
               id={task.id}
               taskName={task.taskName}
               completed={task.completed}
+              callbackCompleted={(id) => handleCallbackCompleted(id)}
+              callbackRemoved={(id) => handleCallbackRemoved(id)}
             />
           ))}
       </div>

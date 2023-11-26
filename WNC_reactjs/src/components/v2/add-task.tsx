@@ -10,6 +10,7 @@ const AddTask = () => {
     <div className="w-full flex flex-row items-center border-2 rounded-md p-4">
       <Plus className="ml-2 mr-4" color="#aeaeae" size={18} />
       <form
+        className="flex-1"
         onSubmit={(e) => {
           e.preventDefault();
           if (taskName !== "") {
@@ -20,7 +21,7 @@ const AddTask = () => {
       >
         <input
           type="text"
-          className="focus:outline-none focus:text-zinc-900 text-[#aeaeae]"
+          className="w-full focus:outline-none focus:text-zinc-900 text-[#aeaeae]"
           placeholder="Add a new task"
           onChange={(e) => setTaskName(e.target.value)}
           value={taskName}

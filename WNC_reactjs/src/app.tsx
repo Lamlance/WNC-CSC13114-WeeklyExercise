@@ -29,11 +29,11 @@ const Layout = () => {
 
 const Home = () => {
   return (
-    <div>
-      <div>
+    <div className="flex flex-col justify-center items-center">
+      <div className="p-4 m-2 border-2 rounded-full">
         <a href="/v1"> Open TodoApp v1 </a>
       </div>
-      <div>
+      <div className="p-4 m-2 border-2 rounded-full">
         <a href="/v2"> Open TodoApp v2 </a>
       </div>
     </div>
