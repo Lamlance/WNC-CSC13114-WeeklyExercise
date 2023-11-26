@@ -1,7 +1,4 @@
 import { Trash } from "lucide-react";
-import { useState } from "react";
-import { useTodosStore } from "../../hooks/use-todo-store";
-
 interface TodoTaskProps {
   id: string;
   taskName: string;
