@@ -12,6 +12,8 @@ const TodoList = () => {
 
   const addTask = (task: Todo) => {
     const updatedTasks = [...tasks, task];
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
     setTasks(updatedTasks);
   };
 
@@ -28,15 +30,12 @@ const TodoList = () => {
   };
 
   useEffect(() => {
-    let savedTasks = localStorage.getItem("tasks");
+    const savedTasks = localStorage.getItem("tasks");
+    console.log("saved tasks", savedTasks);
     if (savedTasks) {
       setTasks(JSON.parse(savedTasks));
     }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
 
   return (
     <div className="w-1/3">
@@ -55,6 +54,7 @@ const TodoList = () => {
           )
           .map((task) => (
             <TodoTask
+              key={task.id}
               id={task.id}
               taskName={task.taskName}
               completed={task.completed}
