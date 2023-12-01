@@ -23,11 +23,10 @@ const TodoTask = ({
         checked={completed}
         onChange={() => callbackCompleted(id)}
       />
-      <input
-        type="text"
-        defaultValue={taskName}
-        className={`flex-1 ${completed ? "line-through" : ""}`}
-      />
+      <span className={`flex-1 ${completed ? "line-through" : ""}`}>
+        {" "}
+        {taskName}{" "}
+      </span>
       <Trash
         className="hover:border-2"
         color="#aeaeae"

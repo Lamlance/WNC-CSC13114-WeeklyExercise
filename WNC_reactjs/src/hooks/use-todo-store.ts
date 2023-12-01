@@ -16,6 +16,7 @@ export const useTodosStore = create<TodoState>((set) => ({
   searchText: "",
   addTodo: (taskName: string) => {
     set((state) => ({
+      ...state,
       todos: [
         ...state.todos,
         {
@@ -34,15 +35,13 @@ export const useTodosStore = create<TodoState>((set) => ({
   toggleCompletedState: (id: string) => {
     set((state) => ({
       todos: state.todos.map((todo) =>
-        todo.id === id
-          ? ({ ...todo, completed: !todo.completed } as Todo)
-          : todo
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
       ),
     }));
   },
   setFilter: (searchText: string) => {
     set(() => ({
-        searchText: searchText
-    }))
-  }
+      searchText: searchText,
+    }));
+  },
 }));

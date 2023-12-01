@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Todo } from "../../model/todo";
-import { randomUUID } from "crypto";
+import { v4 as uuidv4 } from "uuid";
 
 const initialState: {
   todos: Todo[];
@@ -12,14 +12,15 @@ const TodosSlice = createSlice({
   initialState: initialState,
   reducers: {
     todoAdded: function (state, action: PayloadAction<Omit<Todo, "id">>) {
-      state.todos.push({ ...action.payload, id: randomUUID() });
+      state.todos.push({ ...action.payload, id: uuidv4() });
     },
     todoRemove: function (state, action: PayloadAction<Todo["id"]>) {
       state.todos = state.todos.filter((t) => t.id !== action.payload);
     },
     todoToggle: function (state, action: PayloadAction<Todo["id"]>) {
-      const todo = state.todos.find((t) => t.id === action.payload);
-      if (todo) todo.completed = !todo.completed;
+      const todo = state.todos.findIndex((t) => t.id === action.payload);
+      if (todo < 0) return;
+      state.todos[todo].completed = !state.todos[todo].completed;
     },
     todoSetSearch: function (state, action: PayloadAction<Todo["taskName"]>) {
       state.searchText = action.payload;

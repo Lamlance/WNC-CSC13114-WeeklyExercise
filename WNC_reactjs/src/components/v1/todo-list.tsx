@@ -12,16 +12,15 @@ const TodoList = () => {
 
   const addTask = (task: Todo) => {
     const updatedTasks = [...tasks, task];
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-
     setTasks(updatedTasks);
   };
 
   const handleCallbackCompleted = (id: string) => {
-    const updatedTasks = tasks.map((task) =>
-      task.id === id ? ({ ...task, completed: !task.completed } as Todo) : task
-    );
-    setTasks(updatedTasks);
+    const taskId = tasks.findIndex((t) => t.id === id);
+    if (taskId < 0) return;
+
+    tasks[taskId].completed = !tasks[taskId].completed;
+    setTasks([...tasks]);
   };
 
   const handleCallbackRemoved = (id: string) => {
@@ -32,11 +31,16 @@ const TodoList = () => {
   useEffect(() => {
     const savedTasks = localStorage.getItem("tasks");
     console.log("saved tasks", savedTasks);
-    if (savedTasks) {
+    if (savedTasks && savedTasks != "[]") {
       setTasks(JSON.parse(savedTasks));
     }
   }, []);
-
+  useEffect(
+    function () {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    },
+    [tasks]
+  );
   return (
     <div className="w-1/3">
       <TodoFilter callback={(searchText) => setSearchText(searchText)} />

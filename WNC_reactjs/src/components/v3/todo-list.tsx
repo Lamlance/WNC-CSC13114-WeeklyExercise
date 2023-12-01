@@ -18,6 +18,7 @@ const TodoList = () => {
           )
           .map((task) => (
             <TodoTask
+              key={task.id}
               id={task.id}
               taskName={task.taskName}
               completed={task.completed}

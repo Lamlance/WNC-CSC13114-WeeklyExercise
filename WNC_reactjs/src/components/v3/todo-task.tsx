@@ -19,7 +19,10 @@ const TodoTask = ({ id, taskName, completed }: TodoTaskProps) => {
         checked={completed}
         onChange={() => dispatch(todoToggle(id))}
       />
-      <span className="flex-1"> {taskName} </span>
+      <span className={`flex-1 ${completed ? "line-through" : ""}`}>
+        {" "}
+        {taskName}{" "}
+      </span>
       <Trash
         className="hover:border-2"
         color="#aeaeae"
