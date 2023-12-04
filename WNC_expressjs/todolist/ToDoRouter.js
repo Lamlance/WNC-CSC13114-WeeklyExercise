@@ -48,7 +48,6 @@ ToDoRouter.patch("/:task_id", async function (req, res) {
   if (!user_id || Number.isNaN(user_id))
     return res.status(403).json({ error: "Invalid user id" });
 
-  console.log(req.body);
   const body = z.boolean().safeParse(req.body.completed);
   if (body.success == false) return res.status(400).json({ error: body.error });
 

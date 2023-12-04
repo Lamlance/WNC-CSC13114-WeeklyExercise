@@ -4,6 +4,9 @@ import FirstHomePage from "./routes/v1";
 import AnotherSecondHomePage from "./routes/v2.1";
 import ThirdHomePage from "./routes/v3";
 import ThirdLoginPage from "./routes/v3/login";
+import { Provider } from "react-redux";
+import { ReduxStore } from "./hooks/Redux/ReduxStore";
+import LoadingModal from "./components/v3/LoadingModal";
 
 const App = () => {
   return (
@@ -13,7 +16,15 @@ const App = () => {
         <Route path="v1" element={<FirstHomePage />} />
         <Route path="v2" element={<SecondHomePage />} />
         <Route path="v2.1" element={<AnotherSecondHomePage />} />
-        <Route path="v3">
+        <Route
+          path="v3"
+          element={
+            <Provider store={ReduxStore}>
+              <LoadingModal />
+              <Outlet />
+            </Provider>
+          }
+        >
           <Route path="/v3/" element={<ThirdHomePage />} />
           <Route path="/v3/login" element={<ThirdLoginPage />} />
         </Route>

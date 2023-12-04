@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import {
   FieldErrors,
   FieldValues,
@@ -7,6 +8,8 @@ import {
   Resolver,
 } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../hooks/Redux/ReduxHook";
+import { setLoading } from "../../hooks/Redux/LoadingSlice";
 const SERVER_URL = "http://localhost:3030";
 function ThirdLoginPage() {
   const {
@@ -15,9 +18,15 @@ function ThirdLoginPage() {
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  useEffect(function () {
+    dispatch(setLoading("Logging out"));
+  }, []);
 
   async function onSubmit(formData: FieldValues) {
     try {
+      dispatch(setLoading("Logging in"));
       const data = await fetch(`${SERVER_URL}/login`, {
         method: "POST",
         body: JSON.stringify(formData),

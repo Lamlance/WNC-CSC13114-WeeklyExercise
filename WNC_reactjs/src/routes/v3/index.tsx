@@ -2,21 +2,21 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks/Redux/ReduxHook";
 import V3_TaskItem from "../../components/v3/ToDoItem";
-import { Provider } from "react-redux";
-import { ReduxStore } from "../../hooks/Redux/ReduxStore";
 import V3_AddTask from "../../components/v3/AddTask";
 import V3_TodoFilter from "../../components/v3/ToDoFilter";
-import { todoAdded, todoSetList } from "../../hooks/Redux/ToDoSlice";
+import { todoSetList } from "../../hooks/Redux/ToDoSlice";
 import { setToken } from "../../hooks/Redux/TokenSlice";
+import { setLoading } from "../../hooks/Redux/LoadingSlice";
 const SERVER_URL = "http://localhost:3030";
 
 function ThirdHomePage() {
   const navigate = useNavigate();
   const { todos, searchText } = useAppSelector((state) => state.todos);
   const access_token = useAppSelector((state) => state.token);
-  const dispath = useAppDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
+    dispatch(setLoading(""));
     fetch(`${SERVER_URL}/task/`, {
       headers: { authorization: `Bearer ${access_token}` },
       mode: "cors",
@@ -24,13 +24,14 @@ function ThirdHomePage() {
       try {
         const json = await data.json();
         console.log("Current data: ", json);
-        dispath(todoSetList(json.data));
+        dispatch(todoSetList(json.data));
       } catch (e) {}
     });
   }, []);
 
   function log_out_handler() {
     localStorage.removeItem("accessToken");
+    dispatch(setLoading("Logging out"));
     setTimeout(() => navigate("/v3/login"), 2000);
   }
 
@@ -54,74 +55,45 @@ function ThirdHomePage() {
   );
 }
 
-function LoadingCircle() {
-  return (
-    <div className=" bg-slate-500 flex flex-row px-4 w-full h-full">
-      <svg
-        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        ></circle>
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        ></path>
-      </svg>
-      <p>Loading</p>
-    </div>
-  );
-}
-
-function HomePageWrapper() {
+export default function () {
   const accessToken = useAppSelector((state) => state.token);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
   useEffect(function () {
     const storedToken = localStorage.getItem("accessToken");
-    if (!storedToken) setTimeout(() => navigate("/v3/login"), 5000);
-    else {
+    if (!storedToken) {
+      dispatch(setLoading("Not found previous login"));
+      setTimeout(() => navigate("/v3/login"), 5000);
+    } else {
+      dispatch(setLoading("Authorizing"));
       fetch(`${SERVER_URL}/auth`, {
         method: "GET",
         headers: {
           authorization: `Brearer ${storedToken}`,
         },
-      }).then(async (data) => {
-        console.log(await data.text());
-        if (data.status != 200) setTimeout(() => navigate("/v3/login"), 5000);
-        else setTimeout(() => dispatch(setToken(storedToken)), 5000);
-      });
+      })
+        .then(async (data) => {
+          console.log(await data.text());
+          if (data.status != 200) {
+            dispatch(setLoading("Login failed"));
+            setTimeout(() => navigate("/v3/login"), 3000);
+          } else {
+            dispatch(setLoading("Login successful"));
+            setTimeout(() => dispatch(setToken(storedToken)), 3000);
+          }
+        })
+        .catch(() => dispatch(setLoading("Login error")));
     }
-  });
+  }, []);
 
   return (
-    <div>
-      {!accessToken ? (
-        <div>
-          <LoadingCircle />
-        </div>
-      ) : (
+    <div className=" relative w-screen min-h-screen">
+      {!accessToken ? null : (
         <div>
           <ThirdHomePage />
         </div>
       )}
     </div>
-  );
-}
-
-export default function () {
-  return (
-    <Provider store={ReduxStore}>
-      <HomePageWrapper />
-    </Provider>
   );
 }
