@@ -54,8 +54,12 @@ function ThirdHomePage() {
     </div>
   );
 }
-
-export default function () {
+export { ThirdHomePage };
+export default function AuthWrapper({
+  ProtectedPage,
+}: {
+  ProtectedPage: () => JSX.Element;
+}) {
   const accessToken = useAppSelector((state) => state.token);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -89,11 +93,7 @@ export default function () {
 
   return (
     <div className=" relative w-screen min-h-screen">
-      {!accessToken ? null : (
-        <div>
-          <ThirdHomePage />
-        </div>
-      )}
+      {!accessToken ? null : <div>{<ProtectedPage />}</div>}
     </div>
   );
 }

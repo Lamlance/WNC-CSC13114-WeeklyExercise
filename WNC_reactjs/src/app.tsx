@@ -2,11 +2,11 @@ import { Outlet, Route, Routes } from "react-router-dom";
 import SecondHomePage from "./routes/v2";
 import FirstHomePage from "./routes/v1";
 import AnotherSecondHomePage from "./routes/v2.1";
-import ThirdHomePage from "./routes/v3";
 import ThirdLoginPage from "./routes/v3/login";
 import { Provider } from "react-redux";
 import { ReduxStore } from "./hooks/Redux/ReduxStore";
 import LoadingModal from "./components/v3/LoadingModal";
+import AuthWrapper, { ThirdHomePage } from "./routes/v3";
 
 const App = () => {
   return (
@@ -25,7 +25,10 @@ const App = () => {
             </Provider>
           }
         >
-          <Route path="/v3/" element={<ThirdHomePage />} />
+          <Route
+            path="/v3/"
+            element={<AuthWrapper ProtectedPage={ThirdHomePage} />}
+          />
           <Route path="/v3/login" element={<ThirdLoginPage />} />
         </Route>
       </Route>
